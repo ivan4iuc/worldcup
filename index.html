@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ÐÑÐ±Ð¾Ðº Ð¼Ð¸ÑÐ° 2026 â Ð£Ð³Ð°Ð´Ð°Ð¹ Ð¼Ð¸Ð½ÑÑÑ Ð¿ÐµÑÐ²Ð¾Ð³Ð¾ Ð³Ð¾Ð»Ð°</title>
+<style>
+  :root{
+    --bg:#0d1117; --surface:#161b22; --surface2:#1c2230; --line:#2a3240;
+    --text:#e6edf3; --muted:#9aa7b4; --accent:#3fb950; --accent2:#388bfd;
+    --gold:#e3b341; --danger:#f85149; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;
+    padding:16px;max-width:760px;margin:0 auto;-webkit-font-smoothing:antialiased;}
+  h1{font-size:24px;font-weight:600;text-align:center;margin-bottom:2px;}
+  .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .card{background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .day-title{font-size:15px;font-weight:600;color:var(--accent);
+    display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .match{background:var(--surface2);border:1px solid var(--line);border-radius:12px;
+    padding:12px;margin-bottom:10px;}
+  .match-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;}
+  .teams{font-size:15px;font-weight:600;}
+  .meta{font-size:12px;color:var(--muted);margin-top:2px;}
+  .goal-badge{font-size:12px;font-weight:600;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+  .badge-pending{background:#21262d;color:var(--muted);}
+  .badge-goal{background:rgba(63,185,80,.15);color:var(--accent);}
+  .badge-nogoal{background:rgba(248,81,73,.15);color:var(--danger);}
+  .picks{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
+  .pick-row{display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;padding:3px 0;color:var(--muted);}
+  .pick-row .who{color:var(--text);}
+  .pick-row.win{color:var(--gold);font-weight:600;}
+  .pick-row.exact .who::after{content:" â +3";color:var(--gold);}
+  .pick-row.win .who::after{content:" +1";color:var(--gold);}
+  input,button{font-family:inherit;font-size:14px;border-radius:10px;
+    border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:9px 11px;}
+  input::placeholder{color:#5b6673;}
+  button{background:var(--accent);color:#04240c;border:none;font-weight:600;cursor:pointer;transition:opacity .15s;}
+  button:hover{opacity:.88;}
+  button:disabled{opacity:.5;cursor:default;}
+  button.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--line);}
+  button.small{padding:6px 10px;font-size:12px;}
+  .editgrid{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .editcell{display:flex;align-items:center;gap:6px;}
+  .editcell label{font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .editcell input{width:62px;padding:7px 8px;text-align:center;}
+  .lb-row{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px solid var(--line);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-rank{width:26px;height:26px;border-radius:50%;background:var(--surface2);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;}
+  .lb-rank.g1{background:var(--gold);color:#3a2c00;}
+  .lb-rank.g2{background:#c0c0c0;color:#2a2a2a;}
+  .lb-rank.g3{background:#cd7f32;color:#2a1700;}
+  .lb-name{flex:1;font-weight:500;}
+  .lb-detail{font-size:12px;color:var(--muted);}
+  .lb-pts{font-size:18px;font-weight:700;color:var(--gold);min-width:30px;text-align:right;}
+  .admin-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .admin-on{background:rgba(56,139,253,.15);border:1px solid var(--accent2);
+    border-radius:10px;padding:6px 12px;font-size:12px;color:var(--accent2);font-weight:600;}
+  .goal-input{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;
+    background:rgba(56,139,253,.07);border:1px dashed var(--accent2);border-radius:10px;padding:10px;}
+  .goal-input input{width:80px;}
+  .goal-input button{background:var(--accent2);color:#031426;}
+  .saverow{margin-top:10px;display:flex;justify-content:flex-end;}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;}
+  .tab{flex:1;text-align:center;padding:10px;border-radius:10px;background:var(--surface);
+    border:1px solid var(--line);cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);}
+  .tab.active{background:var(--accent);color:#04240c;border-color:var(--accent);}
+  .hide{display:none;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--accent);color:#04240c;padding:10px 18px;border-radius:24px;
+    font-weight:600;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;}
+  .toast.show{opacity:1;}
+  .toast.err{background:var(--danger);color:#fff;}
+  .rules{font-size:13px;color:var(--muted);line-height:1.8;}
+  .rules b{color:var(--text);}
+  .loading{text-align:center;color:var(--muted);padding:40px;}
+  .status{text-align:center;font-size:11px;color:var(--muted);margin-bottom:10px;min-height:14px;}
+</style>
+</head>
+<body>
+  <h1>â½ ÐÑÐ±Ð¾Ðº Ð¼Ð¸ÑÐ° 2026</h1>
+  <div class="sub">Ð£Ð³Ð°Ð´Ð°Ð¹ Ð¼Ð¸Ð½ÑÑÑ Ð¿ÐµÑÐ²Ð¾Ð³Ð¾ Ð³Ð¾Ð»Ð° Â· 20â21 Ð¸ÑÐ½Ñ</div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="games">ÐÐ°ÑÑÐ¸</div>
+    <div class="tab" data-tab="board">ð Ð¢Ð°Ð±Ð»Ð¸ÑÐ°</div>
+    <div class="tab" data-tab="info">ÐÑÐ°Ð²Ð¸Ð»Ð°</div>
+  </div>
+
+  <div class="admin-bar" id="adminBar"></div>
+  <div class="status" id="status"></div>
+
+  <div id="loading" class="loading">ÐÐ°Ð³ÑÑÐ·ÐºÐ°â¦</div>
+  <div id="games" class="tab-content hide"></div>
+  <div id="board" class="tab-content hide"></div>
+
+  <div id="info" class="tab-content hide">
+    <div class="card">
+      <div class="day-title"><i></i>ÐÐ°Ðº Ð¸Ð³ÑÐ°ÐµÐ¼</div>
+      <div class="rules">
+        ÐÐ°Ð¶Ð´ÑÐ¹ Ð¸Ð³ÑÐ¾Ðº Ð½Ð°Ð·ÑÐ²Ð°ÐµÑ <b>Ð¼Ð¸Ð½ÑÑÑ</b>, Ð½Ð° ÐºÐ¾ÑÐ¾ÑÐ¾Ð¹ Ð±ÑÐ´ÐµÑ Ð·Ð°Ð±Ð¸Ñ <b>Ð¿ÐµÑÐ²ÑÐ¹ Ð³Ð¾Ð»</b> Ð¼Ð°ÑÑÐ°.
+        ÐÐ¸Ð½ÑÑÑ Ð²Ð¿Ð¸ÑÑÐ²Ð°ÐµÑ Ð°Ð´Ð¼Ð¸Ð½.<br><br>
+        â¢ <b>Ð¢Ð¾ÑÐ½Ð¾Ðµ Ð¿Ð¾Ð¿Ð°Ð´Ð°Ð½Ð¸Ðµ</b> = <b>3 Ð¾ÑÐºÐ°</b> â<br>
+        â¢ <b>ÐÐ»Ð¸Ð¶Ðµ Ð²ÑÐµÑ</b> (Ð½Ð¾ Ð½Ðµ ÑÐ¾ÑÐ½Ð¾) = <b>1 Ð¾ÑÐºÐ¾</b>. ÐÑÐ¸ ÑÐ°Ð²Ð½Ð¾Ð¼ ÑÐ°ÑÑÑÐ¾ÑÐ½Ð¸Ð¸ Ð¾ÑÐºÐ¾ Ð´ÐµÐ»ÑÑ Ð²ÑÐµ Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑÐ¸Ðµ.<br>
+        â¢ ÐÐ°ÑÑ <b>Ð±ÐµÐ· Ð³Ð¾Ð»Ð¾Ð² (0:0)</b> â Ð½Ðµ ÑÑÐ¸ÑÐ°ÐµÑÑÑ.<br><br>
+        Ð ÐºÐ¾Ð½ÑÐµ Ð²Ð¾ÑÐºÑÐµÑÐµÐ½ÑÑ Ð¿Ð¾Ð±ÐµÐ¶Ð´Ð°ÐµÑ ÑÐ¾Ñ, Ñ ÐºÐ¾Ð³Ð¾ Ð±Ð¾Ð»ÑÑÐµ Ð²ÑÐµÐ³Ð¾ Ð¾ÑÐºÐ¾Ð².<br><br>
+        <b>ÐÐ³ÑÐ¾ÐºÐ¸:</b> ÐÐµÐ½Ð¸Ñ Ð, ÐÐµÐ½Ð¸Ñ Ð , ÐÐ»Ð°Ð´Ð»ÐµÐ½, ÐÐ½Ð´ÑÐµÐ¹, ÐÐ°Ð´Ð¸Ð¼, ÐÐ°ÐºÑÐ¸Ð¼, Ð¢Ð¸Ð¼ÑÑ.
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://qklklgzuentjrgcbuujo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_v2Ssaygwl63ujc84J7PI_w_Yxg9nMnp";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PLAYERS = ["ÐÐµÐ½Ð¸Ñ Ð","ÐÐµÐ½Ð¸Ñ Ð ","ÐÐ»Ð°Ð´Ð»ÐµÐ½","ÐÐ½Ð´ÑÐµÐ¹","ÐÐ°Ð´Ð¸Ð¼","ÐÐ°ÐºÑÐ¸Ð¼","Ð¢Ð¸Ð¼ÑÑ"];
+const MATCHES = [
+  {id:"m1", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"ÐÐ¸Ð´ÐµÑÐ»Ð°Ð½Ð´Ñ â Ð¨Ð²ÐµÑÐ¸Ñ",      time:"10:00 PT Â· Ð¥ÑÑÑÑÐ¾Ð½"},
+  {id:"m2", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"ÐÐµÑÐ¼Ð°Ð½Ð¸Ñ â ÐÐ¾Ñ-Ð´'ÐÐ²ÑÐ°Ñ",   time:"13:00 PT Â· Ð¢Ð¾ÑÐ¾Ð½ÑÐ¾"},
+  {id:"m3", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"Ð­ÐºÐ²Ð°Ð´Ð¾Ñ â ÐÑÑÐ°ÑÐ°Ð¾",        time:"17:00 PT Â· ÐÐ°Ð½Ð·Ð°Ñ-Ð¡Ð¸ÑÐ¸"},
+  {id:"m4", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"Ð¢ÑÐ½Ð¸Ñ â Ð¯Ð¿Ð¾Ð½Ð¸Ñ",           time:"21:00 PT Â· ÐÐ¾Ð½ÑÐµÑÑÐµÐ¹"},
+  {id:"m5", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÑÐ¿Ð°Ð½Ð¸Ñ â Ð¡Ð°ÑÐ´. ÐÑÐ°Ð²Ð¸Ñ", time:"09:00 PT Â· ÐÑÐ»Ð°Ð½ÑÐ°"},
+  {id:"m6", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÐµÐ»ÑÐ³Ð¸Ñ â ÐÑÐ°Ð½",         time:"12:00 PT Â· ÐÐ¾Ñ-ÐÐ½Ð´Ð¶ÐµÐ»ÐµÑ"},
+  {id:"m7", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"Ð£ÑÑÐ³Ð²Ð°Ð¹ â ÐÐ°Ð±Ð¾-ÐÐµÑÐ´Ðµ",   time:"15:00 PT Â· ÐÐ°Ð¹Ð°Ð¼Ð¸"},
+  {id:"m8", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÐ¾Ð²Ð°Ñ ÐÐµÐ»Ð°Ð½Ð´Ð¸Ñ â ÐÐ³Ð¸Ð¿ÐµÑ",time:"18:00 PT Â· ÐÐ°Ð½ÐºÑÐ²ÐµÑ"},
+];
+
+let STATE = { picks:{}, goals:{} };
+let isAdmin = false;
+let adminPass = "";
+let currentTab = "games";
+
+function toast(msg,isErr){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.className="toast show"+(isErr?" err":"");
+  setTimeout(()=>t.className="toast",2000);
+}
+function setStatus(s){ document.getElementById("status").textContent=s||""; }
+
+async function loadState(){
+  const { data, error } = await supabase
+    .from("game_state").select("data").eq("id",1).single();
+  if(error){ setStatus("ÐÐµÑ ÑÐ²ÑÐ·Ð¸ Ñ Ð±Ð°Ð·Ð¾Ð¹"); return; }
+  STATE = data && data.data ? data.data : {picks:{},goals:{}};
+  if(!STATE.picks) STATE.picks={};
+  if(!STATE.goals) STATE.goals={};
+  setStatus("");
+}
+async function saveState(){
+  const { data, error } = await supabase.rpc("update_game_state",{
+    new_data: STATE, pass: adminPass
+  });
+  if(error){
+    if(String(error.message||"").toLowerCase().includes("unauthorized")
+       || error.code==="42501"){
+      toast("ÐÐµÐ²ÐµÑÐ½ÑÐ¹ Ð¿Ð°ÑÐ¾Ð»Ñ", true);
+    } else { toast("ÐÑÐ¸Ð±ÐºÐ° ÑÐ¾ÑÑÐ°Ð½ÐµÐ½Ð¸Ñ", true); }
+    return false;
+  }
+  return true;
+}
+
+function scoreMatch(mid){
+  const goal=STATE.goals[mid]; const picks=STATE.picks[mid]||[]; const res={};
+  if(goal===undefined||goal==="nogoal"||picks.length===0) return res;
+  const g=Number(goal); let best=Infinity;
+  picks.forEach(p=>best=Math.min(best,Math.abs(Number(p.minute)-g)));
+  picks.forEach(p=>{const d=Math.abs(Number(p.minute)-g);
+    if(d===0)res[p.player]=3; else if(d===best)res[p.player]=1;});
+  return res;
+}
+function totals(){
+  const t={}; PLAYERS.forEach(p=>t[p]={pts:0,exact:0,wins:0});
+  MATCHES.forEach(m=>{const s=scoreMatch(m.id);
+    Object.entries(s).forEach(([pl,pts])=>{t[pl].pts+=pts;
+      if(pts===3)t[pl].exact++; else if(pts===1)t[pl].wins++;});});
+  return t;
+}
+
+function renderGames(){
+  const root=document.getElementById("games"); let html=""; let lastDay=null;
+  MATCHES.forEach(m=>{
+    if(m.day!==lastDay){ if(lastDay!==null)html+="</div>";
+      html+=`<div class="card"><div class="day-title"><i></i>${m.day}</div>`; lastDay=m.day; }
+    const goal=STATE.goals[m.id];
+    let badge='<span class="goal-badge badge-pending">Ð¶Ð´ÑÐ¼ ÑÐµÐ·ÑÐ»ÑÑÐ°Ñ</span>';
+    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0 â Ð½Ðµ ÑÑÐ¸ÑÐ°ÐµÑÑÑ</span>';
+    else if(goal!==undefined) badge=`<span class="goal-badge badge-goal">1-Ð¹ Ð³Ð¾Ð»: ${goal}'</span>`;
+    const picks=(STATF.picks[m.id]||[]).slice().sort((a,b)=>a.minute-b.minute);
+    const scores=scoreMatch(m.id);
+    let body="";
+    if(isAdmin){
+      let cur={}; (STATE.picks[m.id]||[]).forEach(p=>cur[p.player]=p.minute);
+      let cells=PLAYERS.map((pl,i)=>{
+        const v=cur[pl]!==undefined?cur[pl]:""; const id=`pk-${m.id}-${i}`;
+        return `<div class="editcell"><label>${pl}</label>
+          <input id="${id}" type="number" min="0" max="120" placeholder="Ð¼Ð¸Ð½" value="${v}" /></div>`;
+      }).join("");
+      body=`<div class="editgrid">${cells}</div>
+        <div class="saverow"><button class="small" data-action="savePicks" data-mid="${m.id}">Ð¡Ð¾ÑÑÐ°Ð½Ð¸ÑÑ Ð¼Ð¸Ð½ÑÑÑ</button></div>`;
+    } else {
+      if(picks.length){ body='<div class="picks">';
+        picks.forEach(p=>{const pts=scores[p.player]; let cls=""; if(pts===3)cls="exact"; else if(pts===1)cls="win";
+          body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${p.minute}'</span></div>`;});
+        body+='</div>';
+      } else { body='<div class="picks"><div class="empty">ÐÐ¸Ð½ÑÑÑ ÐµÑÑ Ð½Ðµ Ð²Ð½ÐµÑÐµÐ½Ñ</div></div>'; }
+    }
+    let adminGoal="";
+    if(isAdmin){
+      const cur=(goal!==undefined&&goal!=="nogoal")?goal:"";
+      adminGoal=`<div class="goal-input">
+        <span style="font-size:12px;color:var(--accent2);font-weight:600;">ÐÐ¸Ð½ÑÑÐ° 1-Ð³Ð¾ Ð³Ð¾Ð»Ð°:</span>
+        <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="Ð¼Ð¸Ð½" value="${cur}" />
+        <button class="small" data-action="setGoal" data-mid="${m.id}">Ð¡Ð¾ÑÑÐ°Ð½Ð¸ÑÑ Ð³Ð¾Ð»</button>
+        <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
+        ${goal!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Ð¡Ð±ÑÐ¾Ñ</button>`:""}
+      </div>`;
+    }
+    html+=`<div class="match"><div class="match-head">
+      <div><div class="teams">${m.t}</div><div class="meta">${m.time}</div></div>${badge}
+      </div>${body}${adminGoal}</div>`;
+  });
+  html+="</div>"; root.innerHTML=html;
+}
+function renderBoard(){
+  const root=document.getElementById("board"); const t=totals();
+  const ranked=PLAYERS.map(p=>({name:p,...t[p]})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+  let html='<div class="card"><div class="day-title"><i></i>ð Ð¢Ð°Ð±Ð»Ð¸ÑÐ° Ð»Ð¸Ð´ÐµÑÐ¾Ð²</div>';
+  let prevPts=null,rank=0,seen=0;
+  ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
+    const g=rank<=3&&r.pts>0?`g${rank}`:"";
+    let d=[]; if(r.exact)d.push(`${r.exact}Ã ÑÐ¾ÑÐ½Ð¾ â`); if(r.wins)d.push(`${r.wins}Ã Ð±Ð»Ð¸Ð¶Ðµ Ð²ÑÐµÑ`);
+    const det=d.length?d.join(" Â· "):"Ð¿Ð¾ÐºÐ° Ð½ÐµÑ Ð¾ÑÐºÐ¾Ð²";
+    html+=`<div class="lb-row"><div class="lb-rank ${g}">${rank}</div>
+      <div><div class="lb-name">${r.name}</div><div class="lb-detail">${det}</div></div>
+      <div class="lb-pts">${r.pts}</div></div>`;
+  });
+  html+="</div>"; root.innerHTML=html;
+}
+function renderAdminBar(){
+  const bar=document.getElementById("adminBar");
+  if(isAdmin){ bar.innerHTML=`<span class="admin-on">â Ð ÐµÐ¶Ð¸Ð¼ Ð°Ð´Ð¼Ð¸Ð½Ð°</span>
+    <button class="small secondary" data-action="logout">ÐÑÐ¹ÑÐ¸</button>`;
+  } else { bar.innerHTML=`<button class="small secondary" data-action="login">â ÐÑÐ¾Ð´ Ð´Ð»Ñ Ð°Ð´Ð¼Ð¸Ð½Ð°</button>`; }
+}
+function renderAll(){ renderGames(); renderBoard(); renderAdminBar(); }
+
+async function savePicks(mid){
+  const arr=[];
+  PLAYERS.forEach((pl,i)=>{const el=document.getElementById(`pk-${mid}-${i}`); const v=el.value.trim();
+    if(v!==""){const n=parseInt(v,10); if(!isNaN(n)&&n>=0&&n<=120)arr.push({player:pl,minute:n});}});
+  const prev=STATE.picks[mid]; STATE.picks[mid]=arr;
+  if(await saveState()){ renderAll(); toast("ÐÐ¸Ð½ÑÑÑ ÑÐ¾ÑÑÐ°Ð½ÐµÐ½Ñ ("+arr.length+")"); }
+  else { if(prev===undefined) delete STATE.picks[mid]; else STATE.picks[mid]=prev; renderAll(); }
+}
+async function setGoal(mid){
+  const v=parseInt(document.getElementById("goal-"+mid).value,10);
+  if(isNaN(v)||v<1||v>120){ toast("ÐÐ¸Ð½ÑÑÐ° 1â120",true); return; }
+  const prev=STATE.goals[mid]; STATE.goals[mid]=v;
+  if(await saveState()){ renderAll(); toast("ÐÐ¾Ð» Ð½Ð° "+v+"' ÑÐ¾ÑÑÐ°Ð½ÑÐ½"); }
+  else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
+}
+async function setNoGoal(mid){
+  const prev=STATE.goals[mid]; STATE.goals[mid]="nogoal";
+  if(await saveState()){ renderAll(); toast("ÐÑÐ¼ÐµÑÐµÐ½Ð¾ 0:0"); }
+  else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
+}
+async function clearGoal(mid){
+  const prev=STATE.goals[mid]; delete STATE.goals[mid];
+  if(await saveState()){ renderAll(); toast("Ð¡Ð±ÑÐ¾ÑÐµÐ½Ð¾"); }
+  else { STATE.goals[mid]=prev; renderAll(); }
+}
+function login(){
+  const pw=prompt("ÐÐ°ÑÐ¾Ð»Ñ Ð°Ð´Ð¼Ð¸Ð½Ð°:");
+  if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Ð ÐµÐ¶Ð¸Ð¼ Ð°Ð´Ð¼Ð¸Ð½Ð°"); }
+}
+function logout(){ isAdmin=false; adminPass=""; renderAll(); }
+
+// ÐÐµÐ»ÐµÐ³Ð¸ÑÐ¾Ð²Ð°Ð½Ð¸Ðµ ÐºÐ»Ð¸ÐºÐ¾Ð² Ð²Ð¼ÐµÑÑÐ¾ inline onclick (Ð½ÑÐ¶Ð½Ð¾ Ð´Ð»Ñ type=module)
+document.body.addEventListener("click",(e)=>{
+  const b=e.target.closest("[data-action]"); if(!b) return;
+  const a=b.dataset.action; const mid=b.dataset.mid;
+  if(a==="savePicks") savePicks(mid);
+  else if(a==="setGoal") setGoal(mid);
+  else if(a==="setNoGoal") setNoGoal(mid);
+  else if(a==="clearGoal") clearGoal(mid);
+  else if(a==="login") login();
+  else if(a==="logout") logout();
+});
+
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active"); currentTab=tab.dataset.tab;
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.add("hide"));
+    document.getElementById(currentTab).classList.remove("hide");
+  });
+});
+
+(async function init(){
+  await loadState();
+  document.getElementById("loading").classList.add("hide");
+  document.getElementById("games").classList.remove("hide");
+  renderAll();
+  setInterval(async()=>{ if(isAdmin)return; await loadState(); renderAll(); }, 10000);
+})();
+</script>
+</body>
+</html>
