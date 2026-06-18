@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ÐÑÐ±Ð¾Ðº Ð¼Ð¸ÑÐ° 2026 â Ð£Ð³Ð°Ð´Ð°Ð¹ Ð¼Ð¸Ð½ÑÑÑ Ð¿ÐµÑÐ²Ð¾Ð³Ð¾ Ð³Ð¾Ð»Ð°</title>
+<title>Кубок мира 2026 — Угадай минуту первого гола</title>
 <style>
   :root{
     --bg:#0d1117; --surface:#161b22; --surface2:#1c2230; --line:#2a3240;
@@ -34,7 +34,7 @@
     font-size:13px;padding:3px 0;color:var(--muted);}
   .pick-row .who{color:var(--text);}
   .pick-row.win{color:var(--gold);font-weight:600;}
-  .pick-row.exact .who::after{content:" â +3";color:var(--gold);}
+  .pick-row.exact .who::after{content:" ★ +3";color:var(--gold);}
   .pick-row.win .who::after{content:" +1";color:var(--gold);}
   input,button{font-family:inherit;font-size:14px;border-radius:10px;
     border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:9px 11px;}
@@ -85,33 +85,33 @@
 </style>
 </head>
 <body>
-  <h1>â½ ÐÑÐ±Ð¾Ðº Ð¼Ð¸ÑÐ° 2026</h1>
-  <div class="sub">Ð£Ð³Ð°Ð´Ð°Ð¹ Ð¼Ð¸Ð½ÑÑÑ Ð¿ÐµÑÐ²Ð¾Ð³Ð¾ Ð³Ð¾Ð»Ð° Â· 20â21 Ð¸ÑÐ½Ñ</div>
+  <h1>⚽ Кубок мира 2026</h1>
+  <div class="sub">Угадай минуту первого гола · 20–21 июня</div>
 
   <div class="tabs">
-    <div class="tab active" data-tab="games">ÐÐ°ÑÑÐ¸</div>
-    <div class="tab" data-tab="board">ð Ð¢Ð°Ð±Ð»Ð¸ÑÐ°</div>
-    <div class="tab" data-tab="info">ÐÑÐ°Ð²Ð¸Ð»Ð°</div>
+    <div class="tab active" data-tab="games">Матчи</div>
+    <div class="tab" data-tab="board">🏆 Таблица</div>
+    <div class="tab" data-tab="info">Правила</div>
   </div>
 
   <div class="admin-bar" id="adminBar"></div>
   <div class="status" id="status"></div>
 
-  <div id="loading" class="loading">ÐÐ°Ð³ÑÑÐ·ÐºÐ°â¦</div>
+  <div id="loading" class="loading">Загрузка…</div>
   <div id="games" class="tab-content hide"></div>
   <div id="board" class="tab-content hide"></div>
 
   <div id="info" class="tab-content hide">
     <div class="card">
-      <div class="day-title"><i></i>ÐÐ°Ðº Ð¸Ð³ÑÐ°ÐµÐ¼</div>
+      <div class="day-title"><i></i>Как играем</div>
       <div class="rules">
-        ÐÐ°Ð¶Ð´ÑÐ¹ Ð¸Ð³ÑÐ¾Ðº Ð½Ð°Ð·ÑÐ²Ð°ÐµÑ <b>Ð¼Ð¸Ð½ÑÑÑ</b>, Ð½Ð° ÐºÐ¾ÑÐ¾ÑÐ¾Ð¹ Ð±ÑÐ´ÐµÑ Ð·Ð°Ð±Ð¸Ñ <b>Ð¿ÐµÑÐ²ÑÐ¹ Ð³Ð¾Ð»</b> Ð¼Ð°ÑÑÐ°.
-        ÐÐ¸Ð½ÑÑÑ Ð²Ð¿Ð¸ÑÑÐ²Ð°ÐµÑ Ð°Ð´Ð¼Ð¸Ð½.<br><br>
-        â¢ <b>Ð¢Ð¾ÑÐ½Ð¾Ðµ Ð¿Ð¾Ð¿Ð°Ð´Ð°Ð½Ð¸Ðµ</b> = <b>3 Ð¾ÑÐºÐ°</b> â<br>
-        â¢ <b>ÐÐ»Ð¸Ð¶Ðµ Ð²ÑÐµÑ</b> (Ð½Ð¾ Ð½Ðµ ÑÐ¾ÑÐ½Ð¾) = <b>1 Ð¾ÑÐºÐ¾</b>. ÐÑÐ¸ ÑÐ°Ð²Ð½Ð¾Ð¼ ÑÐ°ÑÑÑÐ¾ÑÐ½Ð¸Ð¸ Ð¾ÑÐºÐ¾ Ð´ÐµÐ»ÑÑ Ð²ÑÐµ Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑÐ¸Ðµ.<br>
-        â¢ ÐÐ°ÑÑ <b>Ð±ÐµÐ· Ð³Ð¾Ð»Ð¾Ð² (0:0)</b> â Ð½Ðµ ÑÑÐ¸ÑÐ°ÐµÑÑÑ.<br><br>
-        Ð ÐºÐ¾Ð½ÑÐµ Ð²Ð¾ÑÐºÑÐµÑÐµÐ½ÑÑ Ð¿Ð¾Ð±ÐµÐ¶Ð´Ð°ÐµÑ ÑÐ¾Ñ, Ñ ÐºÐ¾Ð³Ð¾ Ð±Ð¾Ð»ÑÑÐµ Ð²ÑÐµÐ³Ð¾ Ð¾ÑÐºÐ¾Ð².<br><br>
-        <b>ÐÐ³ÑÐ¾ÐºÐ¸:</b> ÐÐµÐ½Ð¸Ñ Ð, ÐÐµÐ½Ð¸Ñ Ð , ÐÐ»Ð°Ð´Ð»ÐµÐ½, ÐÐ½Ð´ÑÐµÐ¹, ÐÐ°Ð´Ð¸Ð¼, ÐÐ°ÐºÑÐ¸Ð¼, Ð¢Ð¸Ð¼ÑÑ.
+        Каждый игрок называет <b>минуту</b>, на которой будет забит <b>первый гол</b> матча.
+        Минуты вписывает админ.<br><br>
+        • <b>Точное попадание</b> = <b>3 очка</b> ★<br>
+        • <b>Ближе всех</b> (но не точно) = <b>1 очко</b>. При равном расстоянии очко делят все ближайшие.<br>
+        • Матч <b>без голов (0:0)</b> — не считается.<br><br>
+        В конце воскресенья побеждает тот, у кого больше всего очков.<br><br>
+        <b>Игроки:</b> Денис И, Денис Р, Владлен, Андрей, Вадим, Максим, Тимур.
       </div>
     </div>
   </div>
@@ -125,16 +125,16 @@ const SUPABASE_URL = "https://qklklgzuentjrgcbuujo.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v2Ssaygwl63ujc84J7PI_w_Yxg9nMnp";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const PLAYERS = ["ÐÐµÐ½Ð¸Ñ Ð","ÐÐµÐ½Ð¸Ñ Ð ","ÐÐ»Ð°Ð´Ð»ÐµÐ½","ÐÐ½Ð´ÑÐµÐ¹","ÐÐ°Ð´Ð¸Ð¼","ÐÐ°ÐºÑÐ¸Ð¼","Ð¢Ð¸Ð¼ÑÑ"];
+const PLAYERS = ["Денис И","Денис Р","Владлен","Андрей","Вадим","Максим","Тимур"];
 const MATCHES = [
-  {id:"m1", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"ÐÐ¸Ð´ÐµÑÐ»Ð°Ð½Ð´Ñ â Ð¨Ð²ÐµÑÐ¸Ñ",      time:"10:00 PT Â· Ð¥ÑÑÑÑÐ¾Ð½"},
-  {id:"m2", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"ÐÐµÑÐ¼Ð°Ð½Ð¸Ñ â ÐÐ¾Ñ-Ð´'ÐÐ²ÑÐ°Ñ",   time:"13:00 PT Â· Ð¢Ð¾ÑÐ¾Ð½ÑÐ¾"},
-  {id:"m3", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"Ð­ÐºÐ²Ð°Ð´Ð¾Ñ â ÐÑÑÐ°ÑÐ°Ð¾",        time:"17:00 PT Â· ÐÐ°Ð½Ð·Ð°Ñ-Ð¡Ð¸ÑÐ¸"},
-  {id:"m4", day:"Ð¡ÑÐ±Ð±Ð¾ÑÐ°, 20 Ð¸ÑÐ½Ñ", t:"Ð¢ÑÐ½Ð¸Ñ â Ð¯Ð¿Ð¾Ð½Ð¸Ñ",           time:"21:00 PT Â· ÐÐ¾Ð½ÑÐµÑÑÐµÐ¹"},
-  {id:"m5", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÑÐ¿Ð°Ð½Ð¸Ñ â Ð¡Ð°ÑÐ´. ÐÑÐ°Ð²Ð¸Ñ", time:"09:00 PT Â· ÐÑÐ»Ð°Ð½ÑÐ°"},
-  {id:"m6", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÐµÐ»ÑÐ³Ð¸Ñ â ÐÑÐ°Ð½",         time:"12:00 PT Â· ÐÐ¾Ñ-ÐÐ½Ð´Ð¶ÐµÐ»ÐµÑ"},
-  {id:"m7", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"Ð£ÑÑÐ³Ð²Ð°Ð¹ â ÐÐ°Ð±Ð¾-ÐÐµÑÐ´Ðµ",   time:"15:00 PT Â· ÐÐ°Ð¹Ð°Ð¼Ð¸"},
-  {id:"m8", day:"ÐÐ¾ÑÐºÑÐµÑÐµÐ½ÑÐµ, 21 Ð¸ÑÐ½Ñ", t:"ÐÐ¾Ð²Ð°Ñ ÐÐµÐ»Ð°Ð½Ð´Ð¸Ñ â ÐÐ³Ð¸Ð¿ÐµÑ",time:"18:00 PT Â· ÐÐ°Ð½ÐºÑÐ²ÐµÑ"},
+  {id:"m1", day:"Суббота, 20 июня", t:"Нидерланды — Швеция",      time:"10:00 PT · Хьюстон"},
+  {id:"m2", day:"Суббота, 20 июня", t:"Германия — Кот-д'Ивуар",   time:"13:00 PT · Торонто"},
+  {id:"m3", day:"Суббота, 20 июня", t:"Эквадор — Кюрасао",        time:"17:00 PT · Канзас-Сити"},
+  {id:"m4", day:"Суббота, 20 июня", t:"Тунис — Япония",           time:"21:00 PT · Монтеррей"},
+  {id:"m5", day:"Воскресенье, 21 июня", t:"Испания — Сауд. Аравия", time:"09:00 PT · Атланта"},
+  {id:"m6", day:"Воскресенье, 21 июня", t:"Бельгия — Иран",         time:"12:00 PT · Лос-Анджелес"},
+  {id:"m7", day:"Воскресенье, 21 июня", t:"Уругвай — Кабо-Верде",   time:"15:00 PT · Майами"},
+  {id:"m8", day:"Воскресенье, 21 июня", t:"Новая Зеландия — Египет",time:"18:00 PT · Ванкувер"},
 ];
 
 let STATE = { picks:{}, goals:{} };
@@ -152,7 +152,7 @@ function setStatus(s){ document.getElementById("status").textContent=s||""; }
 async function loadState(){
   const { data, error } = await supabase
     .from("game_state").select("data").eq("id",1).single();
-  if(error){ setStatus("ÐÐµÑ ÑÐ²ÑÐ·Ð¸ Ñ Ð±Ð°Ð·Ð¾Ð¹"); return; }
+  if(error){ setStatus("Нет связи с базой"); return; }
   STATE = data && data.data ? data.data : {picks:{},goals:{}};
   if(!STATE.picks) STATE.picks={};
   if(!STATE.goals) STATE.goals={};
@@ -165,8 +165,8 @@ async function saveState(){
   if(error){
     if(String(error.message||"").toLowerCase().includes("unauthorized")
        || error.code==="42501"){
-      toast("ÐÐµÐ²ÐµÑÐ½ÑÐ¹ Ð¿Ð°ÑÐ¾Ð»Ñ", true);
-    } else { toast("ÐÑÐ¸Ð±ÐºÐ° ÑÐ¾ÑÑÐ°Ð½ÐµÐ½Ð¸Ñ", true); }
+      toast("Неверный пароль", true);
+    } else { toast("Ошибка сохранения", true); }
     return false;
   }
   return true;
@@ -195,10 +195,10 @@ function renderGames(){
     if(m.day!==lastDay){ if(lastDay!==null)html+="</div>";
       html+=`<div class="card"><div class="day-title"><i></i>${m.day}</div>`; lastDay=m.day; }
     const goal=STATE.goals[m.id];
-    let badge='<span class="goal-badge badge-pending">Ð¶Ð´ÑÐ¼ ÑÐµÐ·ÑÐ»ÑÑÐ°Ñ</span>';
-    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0 â Ð½Ðµ ÑÑÐ¸ÑÐ°ÐµÑÑÑ</span>';
-    else if(goal!==undefined) badge=`<span class="goal-badge badge-goal">1-Ð¹ Ð³Ð¾Ð»: ${goal}'</span>`;
-    const picks=(STATF.picks[m.id]||[]).slice().sort((a,b)=>a.minute-b.minute);
+    let badge='<span class="goal-badge badge-pending">ждём результат</span>';
+    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0 — не считается</span>';
+    else if(goal!==undefined) badge=`<span class="goal-badge badge-goal">1-й гол: ${goal}'</span>`;
+    const picks=(STATE.picks[m.id]||[]).slice().sort((a,b)=>a.minute-b.minute);
     const scores=scoreMatch(m.id);
     let body="";
     if(isAdmin){
@@ -206,26 +206,26 @@ function renderGames(){
       let cells=PLAYERS.map((pl,i)=>{
         const v=cur[pl]!==undefined?cur[pl]:""; const id=`pk-${m.id}-${i}`;
         return `<div class="editcell"><label>${pl}</label>
-          <input id="${id}" type="number" min="0" max="120" placeholder="Ð¼Ð¸Ð½" value="${v}" /></div>`;
+          <input id="${id}" type="number" min="0" max="120" placeholder="мин" value="${v}" /></div>`;
       }).join("");
       body=`<div class="editgrid">${cells}</div>
-        <div class="saverow"><button class="small" data-action="savePicks" data-mid="${m.id}">Ð¡Ð¾ÑÑÐ°Ð½Ð¸ÑÑ Ð¼Ð¸Ð½ÑÑÑ</button></div>`;
+        <div class="saverow"><button class="small" data-action="savePicks" data-mid="${m.id}">Сохранить минуты</button></div>`;
     } else {
       if(picks.length){ body='<div class="picks">';
         picks.forEach(p=>{const pts=scores[p.player]; let cls=""; if(pts===3)cls="exact"; else if(pts===1)cls="win";
           body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${p.minute}'</span></div>`;});
         body+='</div>';
-      } else { body='<div class="picks"><div class="empty">ÐÐ¸Ð½ÑÑÑ ÐµÑÑ Ð½Ðµ Ð²Ð½ÐµÑÐµÐ½Ñ</div></div>'; }
+      } else { body='<div class="picks"><div class="empty">Минуты ещё не внесены</div></div>'; }
     }
     let adminGoal="";
     if(isAdmin){
       const cur=(goal!==undefined&&goal!=="nogoal")?goal:"";
       adminGoal=`<div class="goal-input">
-        <span style="font-size:12px;color:var(--accent2);font-weight:600;">ÐÐ¸Ð½ÑÑÐ° 1-Ð³Ð¾ Ð³Ð¾Ð»Ð°:</span>
-        <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="Ð¼Ð¸Ð½" value="${cur}" />
-        <button class="small" data-action="setGoal" data-mid="${m.id}">Ð¡Ð¾ÑÑÐ°Ð½Ð¸ÑÑ Ð³Ð¾Ð»</button>
+        <span style="font-size:12px;color:var(--accent2);font-weight:600;">Минута 1-го гола:</span>
+        <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="мин" value="${cur}" />
+        <button class="small" data-action="setGoal" data-mid="${m.id}">Сохранить гол</button>
         <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
-        ${goal!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Ð¡Ð±ÑÐ¾Ñ</button>`:""}
+        ${goal!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Сброс</button>`:""}
       </div>`;
     }
     html+=`<div class="match"><div class="match-head">
@@ -237,12 +237,12 @@ function renderGames(){
 function renderBoard(){
   const root=document.getElementById("board"); const t=totals();
   const ranked=PLAYERS.map(p=>({name:p,...t[p]})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
-  let html='<div class="card"><div class="day-title"><i></i>ð Ð¢Ð°Ð±Ð»Ð¸ÑÐ° Ð»Ð¸Ð´ÐµÑÐ¾Ð²</div>';
+  let html='<div class="card"><div class="day-title"><i></i>🏆 Таблица лидеров</div>';
   let prevPts=null,rank=0,seen=0;
   ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
     const g=rank<=3&&r.pts>0?`g${rank}`:"";
-    let d=[]; if(r.exact)d.push(`${r.exact}Ã ÑÐ¾ÑÐ½Ð¾ â`); if(r.wins)d.push(`${r.wins}Ã Ð±Ð»Ð¸Ð¶Ðµ Ð²ÑÐµÑ`);
-    const det=d.length?d.join(" Â· "):"Ð¿Ð¾ÐºÐ° Ð½ÐµÑ Ð¾ÑÐºÐ¾Ð²";
+    let d=[]; if(r.exact)d.push(`${r.exact}× точно ★`); if(r.wins)d.push(`${r.wins}× ближе всех`);
+    const det=d.length?d.join(" · "):"пока нет очков";
     html+=`<div class="lb-row"><div class="lb-rank ${g}">${rank}</div>
       <div><div class="lb-name">${r.name}</div><div class="lb-detail">${det}</div></div>
       <div class="lb-pts">${r.pts}</div></div>`;
@@ -251,9 +251,9 @@ function renderBoard(){
 }
 function renderAdminBar(){
   const bar=document.getElementById("adminBar");
-  if(isAdmin){ bar.innerHTML=`<span class="admin-on">â Ð ÐµÐ¶Ð¸Ð¼ Ð°Ð´Ð¼Ð¸Ð½Ð°</span>
-    <button class="small secondary" data-action="logout">ÐÑÐ¹ÑÐ¸</button>`;
-  } else { bar.innerHTML=`<button class="small secondary" data-action="login">â ÐÑÐ¾Ð´ Ð´Ð»Ñ Ð°Ð´Ð¼Ð¸Ð½Ð°</button>`; }
+  if(isAdmin){ bar.innerHTML=`<span class="admin-on">⚙ Режим админа</span>
+    <button class="small secondary" data-action="logout">Выйти</button>`;
+  } else { bar.innerHTML=`<button class="small secondary" data-action="login">⚙ Вход для админа</button>`; }
 }
 function renderAll(){ renderGames(); renderBoard(); renderAdminBar(); }
 
@@ -262,33 +262,33 @@ async function savePicks(mid){
   PLAYERS.forEach((pl,i)=>{const el=document.getElementById(`pk-${mid}-${i}`); const v=el.value.trim();
     if(v!==""){const n=parseInt(v,10); if(!isNaN(n)&&n>=0&&n<=120)arr.push({player:pl,minute:n});}});
   const prev=STATE.picks[mid]; STATE.picks[mid]=arr;
-  if(await saveState()){ renderAll(); toast("ÐÐ¸Ð½ÑÑÑ ÑÐ¾ÑÑÐ°Ð½ÐµÐ½Ñ ("+arr.length+")"); }
+  if(await saveState()){ renderAll(); toast("Минуты сохранены ("+arr.length+")"); }
   else { if(prev===undefined) delete STATE.picks[mid]; else STATE.picks[mid]=prev; renderAll(); }
 }
 async function setGoal(mid){
   const v=parseInt(document.getElementById("goal-"+mid).value,10);
-  if(isNaN(v)||v<1||v>120){ toast("ÐÐ¸Ð½ÑÑÐ° 1â120",true); return; }
+  if(isNaN(v)||v<1||v>120){ toast("Минута 1–120",true); return; }
   const prev=STATE.goals[mid]; STATE.goals[mid]=v;
-  if(await saveState()){ renderAll(); toast("ÐÐ¾Ð» Ð½Ð° "+v+"' ÑÐ¾ÑÑÐ°Ð½ÑÐ½"); }
+  if(await saveState()){ renderAll(); toast("Гол на "+v+"' сохранён"); }
   else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
 }
 async function setNoGoal(mid){
   const prev=STATE.goals[mid]; STATE.goals[mid]="nogoal";
-  if(await saveState()){ renderAll(); toast("ÐÑÐ¼ÐµÑÐµÐ½Ð¾ 0:0"); }
+  if(await saveState()){ renderAll(); toast("Отмечено 0:0"); }
   else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
 }
 async function clearGoal(mid){
   const prev=STATE.goals[mid]; delete STATE.goals[mid];
-  if(await saveState()){ renderAll(); toast("Ð¡Ð±ÑÐ¾ÑÐµÐ½Ð¾"); }
+  if(await saveState()){ renderAll(); toast("Сброшено"); }
   else { STATE.goals[mid]=prev; renderAll(); }
 }
 function login(){
-  const pw=prompt("ÐÐ°ÑÐ¾Ð»Ñ Ð°Ð´Ð¼Ð¸Ð½Ð°:");
-  if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Ð ÐµÐ¶Ð¸Ð¼ Ð°Ð´Ð¼Ð¸Ð½Ð°"); }
+  const pw=prompt("Пароль админа:");
+  if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа"); }
 }
 function logout(){ isAdmin=false; adminPass=""; renderAll(); }
 
-// ÐÐµÐ»ÐµÐ³Ð¸ÑÐ¾Ð²Ð°Ð½Ð¸Ðµ ÐºÐ»Ð¸ÐºÐ¾Ð² Ð²Ð¼ÐµÑÑÐ¾ inline onclick (Ð½ÑÐ¶Ð½Ð¾ Ð´Ð»Ñ type=module)
+// Делегирование кликов вместо inline onclick (нужно для type=module)
 document.body.addEventListener("click",(e)=>{
   const b=e.target.closest("[data-action]"); if(!b) return;
   const a=b.dataset.action; const mid=b.dataset.mid;
