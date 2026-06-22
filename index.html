@@ -15,7 +15,7 @@
     background:var(--bg);color:var(--text);line-height:1.5;
     padding:16px;max-width:760px;margin:0 auto;-webkit-font-smoothing:antialiased;}
   h1{font-size:24px;font-weight:600;text-align:center;margin-bottom:2px;}
-  .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;}
   .card{background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:16px;margin-bottom:14px;}
   .day-title{font-size:15px;font-weight:600;color:var(--accent);
@@ -29,6 +29,7 @@
   .badge-pending{background:#21262d;color:var(--muted);}
   .badge-goal{background:rgba(63,185,80,.15);color:var(--accent);}
   .badge-nogoal{background:rgba(248,81,73,.15);color:var(--danger);}
+  .badge-locked{background:rgba(227,179,65,.13);color:var(--gold);}
   .picks{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
   .pick-row{display:flex;justify-content:space-between;align-items:center;
     font-size:13px;padding:3px 0;color:var(--muted);}
@@ -36,7 +37,8 @@
   .pick-row.win{color:var(--gold);font-weight:600;}
   .pick-row.exact .who::after{content:" ★ +3";color:var(--gold);}
   .pick-row.win .who::after{content:" +1";color:var(--gold);}
-  input,button{font-family:inherit;font-size:14px;border-radius:10px;
+  .pick-row.me{color:var(--accent2);}
+  input,button,select{font-family:inherit;font-size:14px;border-radius:10px;
     border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:9px 11px;}
   input::placeholder{color:#5b6673;}
   button{background:var(--accent);color:#04240c;border:none;font-weight:600;cursor:pointer;transition:opacity .15s;}
@@ -44,11 +46,10 @@
   button:disabled{opacity:.5;cursor:default;}
   button.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--line);}
   button.small{padding:6px 10px;font-size:12px;}
-  .editgrid{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;
-    display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .editcell{display:flex;align-items:center;gap:6px;}
-  .editcell label{font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .editcell input{width:62px;padding:7px 8px;text-align:center;}
+  .mybet{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .mybet input{width:90px;text-align:center;}
+  .mypick-label{font-size:13px;color:var(--accent2);font-weight:600;}
   .lb-row{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px solid var(--line);}
   .lb-row:last-child{border-bottom:none;}
   .lb-rank{width:26px;height:26px;border-radius:50%;background:var(--surface2);
@@ -57,16 +58,18 @@
   .lb-rank.g2{background:#c0c0c0;color:#2a2a2a;}
   .lb-rank.g3{background:#cd7f32;color:#2a1700;}
   .lb-name{flex:1;font-weight:500;}
+  .lb-name.me{color:var(--accent2);}
   .lb-detail{font-size:12px;color:var(--muted);}
   .lb-pts{font-size:18px;font-weight:700;color:var(--gold);min-width:30px;text-align:right;}
-  .admin-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-  .admin-on{background:rgba(56,139,253,.15);border:1px solid var(--accent2);
+  .topbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;justify-content:space-between;}
+  .who-badge{background:rgba(56,139,253,.15);border:1px solid var(--accent2);
     border-radius:10px;padding:6px 12px;font-size:12px;color:var(--accent2);font-weight:600;}
+  .admin-badge{background:rgba(227,179,65,.15);border:1px solid var(--gold);
+    border-radius:10px;padding:6px 12px;font-size:12px;color:var(--gold);font-weight:600;}
   .goal-input{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;
-    background:rgba(56,139,253,.07);border:1px dashed var(--accent2);border-radius:10px;padding:10px;}
+    background:rgba(227,179,65,.06);border:1px dashed var(--gold);border-radius:10px;padding:10px;}
   .goal-input input{width:80px;}
-  .goal-input button{background:var(--accent2);color:#031426;}
-  .saverow{margin-top:10px;display:flex;justify-content:flex-end;}
+  .goal-input button{background:var(--gold);color:#3a2c00;}
   .tabs{display:flex;gap:6px;margin-bottom:16px;}
   .tab{flex:1;text-align:center;padding:10px;border-radius:10px;background:var(--surface);
     border:1px solid var(--line);cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);}
@@ -75,18 +78,32 @@
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
     background:var(--accent);color:#04240c;padding:10px 18px;border-radius:24px;
-    font-weight:600;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;}
+    font-weight:600;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;max-width:90%;text-align:center;}
   .toast.show{opacity:1;}
   .toast.err{background:var(--danger);color:#fff;}
   .rules{font-size:13px;color:var(--muted);line-height:1.8;}
   .rules b{color:var(--text);}
   .loading{text-align:center;color:var(--muted);padding:40px;}
   .status{text-align:center;font-size:11px;color:var(--muted);margin-bottom:10px;min-height:14px;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;
+    justify-content:center;z-index:100;padding:16px;}
+  .modal-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;max-width:360px;width:100%;}
+  .modal-box h3{font-size:17px;margin-bottom:14px;}
+  .modal-box select,.modal-box input{width:100%;margin-bottom:10px;}
+  .modal-box .row{display:flex;gap:8px;}
+  .modal-box .row button{flex:1;}
+  .hint{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .admin-edit{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
+  .admin-edit summary{cursor:pointer;font-size:12px;color:var(--muted);}
+  .admin-edit .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+  .admin-edit input{width:100%;font-size:13px;padding:7px 8px;}
+  .admin-edit .full{grid-column:1/3;}
 </style>
 </head>
 <body>
   <h1>⚽ Кубок мира 2026</h1>
-  <div class="sub">Угадай минуту первого гола · 20–21 июня</div>
+  <div class="sub">Угадай минуту первого гола</div>
 
   <div class="tabs">
     <div class="tab active" data-tab="games">Матчи</div>
@@ -94,7 +111,7 @@
     <div class="tab" data-tab="info">Правила</div>
   </div>
 
-  <div class="admin-bar" id="adminBar"></div>
+  <div class="topbar" id="topbar"></div>
   <div class="status" id="status"></div>
 
   <div id="loading" class="loading">Загрузка…</div>
@@ -105,18 +122,21 @@
     <div class="card">
       <div class="day-title"><i></i>Как играем</div>
       <div class="rules">
-        Каждый игрок называет <b>минуту</b>, на которой будет забит <b>первый гол</b> матча.
-        Минуты вписывает админ.<br><br>
+        Войди под своим именем (имя + личный 4-значный PIN — задаётся при первом входе).
+        Для каждого матча укажи <b>минуту</b>, на которой, по-твоему, будет первый гол.<br><br>
+        До начала матча чужие ставки <b>скрыты 🔒</b> — каждый видит только свою.
+        После стартового свистка все ставки открываются.<br><br>
         • <b>Точное попадание</b> = <b>3 очка</b> ★<br>
         • <b>Ближе всех</b> (но не точно) = <b>1 очко</b>. При равном расстоянии очко делят все ближайшие.<br>
-        • Матч <b>без голов (0:0)</b> — не считается.<br><br>
-        В конце воскресенья побеждает тот, у кого больше всего очков.<br><br>
-        <b>Игроки:</b> Денис И, Денис Р, Владлен, Андрей, Вадим, Максим, Тимур.
+        • Поставил <b>0</b> = предсказываешь матч <b>0:0</b>. Если матч завершился без голов — <b>3 очка</b> ★<br>
+        • Если матч закончился 0:0, а ты поставил не 0 — <b>очков нет</b>.<br><br>
+        Минуту первого гола вносит администратор после матча.
       </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
+  <div id="modalRoot"></div>
 
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -125,179 +145,326 @@ const SUPABASE_URL = "https://qklklgzuentjrgcbuujo.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v2Ssaygwl63ujc84J7PI_w_Yxg9nMnp";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const PLAYERS = ["Денис И","Денис Р","Владлен","Андрей","Вадим","Максим","Тимур"];
-const MATCHES = [
-  {id:"m1", day:"Суббота, 20 июня", t:"Нидерланды — Швеция",      time:"10:00 PT · Хьюстон"},
-  {id:"m2", day:"Суббота, 20 июня", t:"Германия — Кот-д'Ивуар",   time:"13:00 PT · Торонто"},
-  {id:"m3", day:"Суббота, 20 июня", t:"Эквадор — Кюрасао",        time:"17:00 PT · Канзас-Сити"},
-  {id:"m4", day:"Суббота, 20 июня", t:"Тунис — Япония",           time:"21:00 PT · Монтеррей"},
-  {id:"m5", day:"Воскресенье, 21 июня", t:"Испания — Сауд. Аравия", time:"09:00 PT · Атланта"},
-  {id:"m6", day:"Воскресенье, 21 июня", t:"Бельгия — Иран",         time:"12:00 PT · Лос-Анджелес"},
-  {id:"m7", day:"Воскресенье, 21 июня", t:"Уругвай — Кабо-Верде",   time:"15:00 PT · Майами"},
-  {id:"m8", day:"Воскресенье, 21 июня", t:"Новая Зеландия — Египет",time:"18:00 PT · Ванкувер"},
-];
-
 let STATE = { picks:{}, goals:{} };
+let MATCHES = [];
+let PLAYERS = [];
+let me = null;
+let myPin = null;
 let isAdmin = false;
 let adminPass = "";
 let currentTab = "games";
+const now = () => new Date();
+
+try {
+  const s = JSON.parse(localStorage.getItem("wc_session")||"null");
+  if(s){ me = s.me||null; myPin = s.pin||null; }
+} catch(e){}
 
 function toast(msg,isErr){
   const t=document.getElementById("toast");
   t.textContent=msg; t.className="toast show"+(isErr?" err":"");
-  setTimeout(()=>t.className="toast",2000);
+  setTimeout(()=>t.className="toast",2400);
 }
 function setStatus(s){ document.getElementById("status").textContent=s||""; }
+function saveSession(){
+  if(me&&myPin) localStorage.setItem("wc_session",JSON.stringify({me,pin:myPin}));
+  else localStorage.removeItem("wc_session");
+}
 
-async function loadState(){
-  const { data, error } = await supabase
-    .from("game_state").select("data").eq("id",1).single();
-  if(error){ setStatus("Нет связи с базой"); return; }
-  STATE = data && data.data ? data.data : {picks:{},goals:{}};
+async function loadAll(){
+  const [st, mt, pl] = await Promise.all([
+    supabase.from("game_state").select("data").eq("id",1).single(),
+    supabase.from("matches").select("*").order("sort_order"),
+    supabase.from("players_public").select("*").order("sort_order"),
+  ]);
+  if(st.error){ setStatus("Нет связи с базой"); return; }
+  STATE = st.data?.data || {picks:{},goals:{}};
   if(!STATE.picks) STATE.picks={};
   if(!STATE.goals) STATE.goals={};
+  MATCHES = (mt.data||[]).map(m=>({
+    id:m.id, day:m.day, teams:m.teams, venue:m.venue,
+    kickoff:new Date(m.kickoff), sort:m.sort_order
+  }));
+  PLAYERS = pl.data||[];
   setStatus("");
 }
-async function saveState(){
-  const { data, error } = await supabase.rpc("update_game_state",{
-    new_data: STATE, pass: adminPass
-  });
-  if(error){
-    if(String(error.message||"").toLowerCase().includes("unauthorized")
-       || error.code==="42501"){
-      toast("Неверный пароль", true);
-    } else { toast("Ошибка сохранения", true); }
-    return false;
-  }
-  return true;
-}
 
+function started(m){ return now() >= m.kickoff; }
+function fmtTime(d){
+  return d.toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+}
 function scoreMatch(mid){
   const goal=STATE.goals[mid]; const picks=STATE.picks[mid]||[]; const res={};
-  if(goal===undefined||goal==="nogoal"||picks.length===0) return res;
-  const g=Number(goal); let best=Infinity;
-  picks.forEach(p=>best=Math.min(best,Math.abs(Number(p.minute)-g)));
-  picks.forEach(p=>{const d=Math.abs(Number(p.minute)-g);
+  if(goal===undefined||picks.length===0) return res;
+  if(goal==="nogoal"){
+    // 0:0 матч: очки только тем, кто поставил 0 (предсказал 0:0) → 3 очка
+    picks.forEach(p=>{ if(Number(p.minute)===0) res[p.player]=3; });
+    return res;
+  }
+  const g=Number(goal);
+  const sp=picks.filter(p=>Number(p.minute)!==0); // ставки на 0:0 не участвуют в «ближе всех»
+  if(sp.length===0) return res;
+  let best=Infinity;
+  sp.forEach(p=>best=Math.min(best,Math.abs(Number(p.minute)-g)));
+  sp.forEach(p=>{const d=Math.abs(Number(p.minute)-g);
     if(d===0)res[p.player]=3; else if(d===best)res[p.player]=1;});
   return res;
 }
 function totals(){
-  const t={}; PLAYERS.forEach(p=>t[p]={pts:0,exact:0,wins:0});
+  const t={}; PLAYERS.forEach(p=>t[p.name]={pts:0,exact:0,wins:0});
   MATCHES.forEach(m=>{const s=scoreMatch(m.id);
-    Object.entries(s).forEach(([pl,pts])=>{t[pl].pts+=pts;
-      if(pts===3)t[pl].exact++; else if(pts===1)t[pl].wins++;});});
+    Object.entries(s).forEach(([pl,pts])=>{ if(!t[pl])t[pl]={pts:0,exact:0,wins:0};
+      t[pl].pts+=pts; if(pts===3)t[pl].exact++; else if(pts===1)t[pl].wins++;});});
   return t;
+}
+function myPick(mid){
+  const arr=STATE.picks[mid]||[];
+  const p=arr.find(x=>x.player===me);
+  return p?p.minute:null;
+}
+function toLocalInput(d){
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function renderGames(){
   const root=document.getElementById("games"); let html=""; let lastDay=null;
+  if(MATCHES.length===0 && !isAdmin){ root.innerHTML='<div class="card"><div class="empty">Расписание пока не добавлено</div></div>'; return; }
   MATCHES.forEach(m=>{
     if(m.day!==lastDay){ if(lastDay!==null)html+="</div>";
       html+=`<div class="card"><div class="day-title"><i></i>${m.day}</div>`; lastDay=m.day; }
     const goal=STATE.goals[m.id];
-    let badge='<span class="goal-badge badge-pending">ждём результат</span>';
-    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0 — не считается</span>';
+    const isStarted=started(m);
+    let badge;
+    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0</span>';
     else if(goal!==undefined) badge=`<span class="goal-badge badge-goal">1-й гол: ${goal}'</span>`;
+    else if(isStarted) badge='<span class="goal-badge badge-pending">идёт / ждём гол</span>';
+    else badge='<span class="goal-badge badge-locked">🔒 ставки открыты</span>';
+
     const picks=(STATE.picks[m.id]||[]).slice().sort((a,b)=>a.minute-b.minute);
     const scores=scoreMatch(m.id);
+
     let body="";
-    if(isAdmin){
-      let cur={}; (STATE.picks[m.id]||[]).forEach(p=>cur[p.player]=p.minute);
-      let cells=PLAYERS.map((pl,i)=>{
-        const v=cur[pl]!==undefined?cur[pl]:""; const id=`pk-${m.id}-${i}`;
-        return `<div class="editcell"><label>${pl}</label>
-          <input id="${id}" type="number" min="0" max="120" placeholder="мин" value="${v}" /></div>`;
-      }).join("");
-      body=`<div class="editgrid">${cells}</div>
-        <div class="saverow"><button class="small" data-action="savePicks" data-mid="${m.id}">Сохранить минуты</button></div>`;
+    if(!isStarted){
+      const mine=myPick(m.id);
+      const others=picks.filter(p=>p.player!==me).length;
+      body='<div class="picks">';
+      if(mine!==null){const mLbl=mine===0?'0:0':`${mine}'`; body+=`<div class="pick-row me"><span class="who">${me} (ты)</span><span>${mLbl}</span></div>`;}
+      body+=`<div class="pick-row"><span class="who">🔒 скрыто до начала</span><span>${others} ${others===1?'ставка':'ставок'}</span></div>`;
+      body+='</div>';
     } else {
       if(picks.length){ body='<div class="picks">';
         picks.forEach(p=>{const pts=scores[p.player]; let cls=""; if(pts===3)cls="exact"; else if(pts===1)cls="win";
-          body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${p.minute}'</span></div>`;});
+          if(p.player===me) cls+=" me";
+          const mLbl=Number(p.minute)===0?'0:0':`${p.minute}'`;
+          body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${mLbl}</span></div>`;});
         body+='</div>';
-      } else { body='<div class="picks"><div class="empty">Минуты ещё не внесены</div></div>'; }
+      } else { body='<div class="picks"><div class="empty">Никто не поставил</div></div>'; }
     }
-    let adminGoal="";
+
+    let betForm="";
+    if(me && !isStarted){
+      const mine=myPick(m.id);
+      const zeroHint=mine===0?'<span style="font-size:11px;color:var(--muted);margin-left:4px;">→ ставка на 0:0</span>':'';
+      betForm=`<div class="mybet">
+        <span class="mypick-label">Твоя минута:</span>
+        <input id="bet-${m.id}" type="number" min="0" max="120" placeholder="мин (0 = 0:0)" value="${mine!==null?mine:''}" />
+        <button class="small" data-action="bet" data-mid="${m.id}">${mine!==null?'Изменить':'Поставить'}</button>
+        ${zeroHint}
+      </div>`;
+    } else if(me && isStarted && myPick(m.id)===null){
+      betForm=`<div class="mybet"><span class="hint">Матч начался — ставка больше недоступна</span></div>`;
+    }
+
+    let adminBlock="";
     if(isAdmin){
       const cur=(goal!==undefined&&goal!=="nogoal")?goal:"";
-      adminGoal=`<div class="goal-input">
-        <span style="font-size:12px;color:var(--accent2);font-weight:600;">Минута 1-го гола:</span>
+      adminBlock=`<div class="goal-input">
+        <span style="font-size:12px;color:var(--gold);font-weight:600;">Минута 1-го гола:</span>
         <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="мин" value="${cur}" />
-        <button class="small" data-action="setGoal" data-mid="${m.id}">Сохранить гол</button>
+        <button class="small" data-action="setGoal" data-mid="${m.id}">Гол</button>
         <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
         ${goal!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Сброс</button>`:""}
-      </div>`;
+      </div>
+      <details class="admin-edit"><summary>✎ Редактировать матч</summary>
+        <div class="grid2">
+          <input id="ed-day-${m.id}" class="full" value="${m.day}" placeholder="День" />
+          <input id="ed-teams-${m.id}" class="full" value="${m.teams.replace(/"/g,'&quot;')}" placeholder="Команды" />
+          <input id="ed-ko-${m.id}" class="full" value="${toLocalInput(m.kickoff)}" type="datetime-local" />
+          <input id="ed-venue-${m.id}" value="${(m.venue||'').replace(/"/g,'&quot;')}" placeholder="Город" />
+          <input id="ed-sort-${m.id}" type="number" value="${m.sort}" placeholder="Порядок" />
+          <button class="small full" data-action="saveMatch" data-mid="${m.id}">Сохранить матч</button>
+          <button class="small secondary full" data-action="delMatch" data-mid="${m.id}">Удалить матч</button>
+        </div>
+      </details>`;
     }
+
     html+=`<div class="match"><div class="match-head">
-      <div><div class="teams">${m.t}</div><div class="meta">${m.time}</div></div>${badge}
-      </div>${body}${adminGoal}</div>`;
+      <div><div class="teams">${m.teams}</div><div class="meta">${fmtTime(m.kickoff)}${m.venue?' · '+m.venue:''}</div></div>${badge}
+      </div>${body}${betForm}${adminBlock}</div>`;
   });
-  html+="</div>"; root.innerHTML=html;
+  if(lastDay!==null) html+="</div>";
+  if(isAdmin){
+    html+=`<div class="card"><div class="day-title"><i></i>➕ Добавить матч</div>
+      <div class="admin-edit"><div class="grid2">
+        <input id="new-id" placeholder="ID (напр. m41)" />
+        <input id="new-sort" type="number" placeholder="Порядок" />
+        <input id="new-day" class="full" placeholder="День (напр. Вторник, 24 июня)" />
+        <input id="new-teams" class="full" placeholder="Команды (напр. Бразилия — Хорватия)" />
+        <input id="new-ko" class="full" type="datetime-local" />
+        <input id="new-venue" class="full" placeholder="Город" />
+        <button class="small full" data-action="addMatch">Добавить матч</button>
+      </div></div></div>`;
+    const pinRows=PLAYERS.map(p=>`
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <span style="width:90px;font-size:13px;font-weight:600;">${p.name}</span>
+        <span style="font-size:11px;${p.has_pin?'color:var(--accent)':'color:var(--danger);'};">${p.has_pin?'✓ PIN задан':'✗ нет PIN'}</span>
+        <input id="pin-${p.name.replace(/ /g,'_')}" type="password" inputmode="numeric" maxlength="8" placeholder="новый PIN (мин. 4 цифры)" style="flex:1;min-width:140px;font-size:13px;padding:6px 8px;" />
+        <button class="small" data-action="setPin" data-name="${p.name}">Задать PIN</button>
+      </div>`).join('');
+    html+=`<div class="card"><div class="day-title"><i></i>🔑 PIN игроков</div>
+      <div class="hint" style="margin-bottom:10px;">Задай каждому игроку PIN и отправь им: имя + PIN для входа на сайте.</div>
+      ${pinRows}
+    </div>`;
+  }
+  root.innerHTML=html;
 }
+
 function renderBoard(){
   const root=document.getElementById("board"); const t=totals();
-  const ranked=PLAYERS.map(p=>({name:p,...t[p]})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+  const ranked=PLAYERS.map(p=>({name:p.name,...(t[p.name]||{pts:0,exact:0,wins:0})}))
+    .sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
   let html='<div class="card"><div class="day-title"><i></i>🏆 Таблица лидеров</div>';
   let prevPts=null,rank=0,seen=0;
   ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
     const g=rank<=3&&r.pts>0?`g${rank}`:"";
     let d=[]; if(r.exact)d.push(`${r.exact}× точно ★`); if(r.wins)d.push(`${r.wins}× ближе всех`);
     const det=d.length?d.join(" · "):"пока нет очков";
+    const meClass=r.name===me?" me":"";
     html+=`<div class="lb-row"><div class="lb-rank ${g}">${rank}</div>
-      <div><div class="lb-name">${r.name}</div><div class="lb-detail">${det}</div></div>
+      <div><div class="lb-name${meClass}">${r.name}${r.name===me?' (ты)':''}</div><div class="lb-detail">${det}</div></div>
       <div class="lb-pts">${r.pts}</div></div>`;
   });
   html+="</div>"; root.innerHTML=html;
 }
-function renderAdminBar(){
-  const bar=document.getElementById("adminBar");
-  if(isAdmin){ bar.innerHTML=`<span class="admin-on">⚙ Режим админа</span>
-    <button class="small secondary" data-action="logout">Выйти</button>`;
-  } else { bar.innerHTML=`<button class="small secondary" data-action="login">⚙ Вход для админа</button>`; }
-}
-function renderAll(){ renderGames(); renderBoard(); renderAdminBar(); }
 
-async function savePicks(mid){
-  const arr=[];
-  PLAYERS.forEach((pl,i)=>{const el=document.getElementById(`pk-${mid}-${i}`); const v=el.value.trim();
-    if(v!==""){const n=parseInt(v,10); if(!isNaN(n)&&n>=0&&n<=120)arr.push({player:pl,minute:n});}});
-  const prev=STATE.picks[mid]; STATE.picks[mid]=arr;
-  if(await saveState()){ renderAll(); toast("Минуты сохранены ("+arr.length+")"); }
-  else { if(prev===undefined) delete STATE.picks[mid]; else STATE.picks[mid]=prev; renderAll(); }
+function renderTopbar(){
+  const bar=document.getElementById("topbar");
+  let left = me ? `<span class="who-badge">👤 ${me}</span>` : `<button class="small secondary" data-action="login">Войти как игрок</button>`;
+  let logoutMe = me?`<button class="small secondary" data-action="logoutMe">Сменить игрока</button>`:"";
+  let right = isAdmin
+    ? `<span class="admin-badge">⚙ Админ</span> <button class="small secondary" data-action="adminOff">Выйти</button>`
+    : `<button class="small secondary" data-action="adminOn">⚙ Админ</button>`;
+  bar.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;">${left}${logoutMe}</div><div>${right}</div>`;
 }
+function renderAll(){ renderGames(); renderBoard(); renderTopbar(); }
+
+async function bet(mid){
+  if(!me){ toast("Сначала войди как игрок",true); return; }
+  const v=parseInt(document.getElementById("bet-"+mid).value,10);
+  if(isNaN(v)||v<0||v>120){ toast("Минута 0–120",true); return; }
+  const { error } = await supabase.rpc("set_player_pick",{p_name:me,p_pin:myPin,p_match:mid,p_minute:v});
+  if(error){
+    if(String(error.message).includes("match_started")) toast("Матч уже начался",true);
+    else if(error.code==="42501"||String(error.message).includes("wrong_pin")) toast("Неверный PIN — войди заново",true);
+    else toast("Ошибка: "+error.message,true);
+    return;
+  }
+  await loadAll(); renderAll(); toast("Твоя ставка: "+v+"'");
+}
+
+function showLogin(){
+  const opts=PLAYERS.map(p=>`<option value="${p.name}">${p.name}${p.has_pin?'':' (новый — задай PIN)'}</option>`).join("");
+  document.getElementById("modalRoot").innerHTML=`
+    <div class="modal"><div class="modal-box">
+      <h3>Вход игрока</h3>
+      <div class="hint">Выбери себя и введи свой 4-значный PIN. Первый вход — придумай PIN, он закрепится за тобой.</div>
+      <select id="login-name">${opts}</select>
+      <input id="login-pin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN (мин. 4 цифры)" />
+      <div class="row">
+        <button data-action="doLogin">Войти</button>
+        <button class="secondary" data-action="closeModal">Отмена</button>
+      </div>
+    </div></div>`;
+}
+async function doLogin(){
+  const name=document.getElementById("login-name").value;
+  const pin=document.getElementById("login-pin").value.trim();
+  if(pin.length<4){ toast("PIN минимум 4 цифры",true); return; }
+  const { error } = await supabase.rpc("player_auth",{p_name:name,p_pin:pin});
+  if(error){ if(error.code==="42501") toast("Неверный PIN",true); else toast("Ошибка входа",true); return; }
+  me=name; myPin=pin; saveSession(); closeModal();
+  await loadAll(); renderAll(); toast("Привет, "+name+"!");
+}
+function logoutMe(){ me=null; myPin=null; saveSession(); renderAll(); toast("Вышел"); }
+
+function adminOn(){ const pw=prompt("Пароль админа:"); if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа"); } }
+function adminOff(){ isAdmin=false; adminPass=""; renderAll(); }
+
 async function setGoal(mid){
   const v=parseInt(document.getElementById("goal-"+mid).value,10);
   if(isNaN(v)||v<1||v>120){ toast("Минута 1–120",true); return; }
-  const prev=STATE.goals[mid]; STATE.goals[mid]=v;
-  if(await saveState()){ renderAll(); toast("Гол на "+v+"' сохранён"); }
-  else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
+  await adminSaveState(s=>{s.goals[mid]=v;}, "Гол на "+v+"'");
 }
-async function setNoGoal(mid){
-  const prev=STATE.goals[mid]; STATE.goals[mid]="nogoal";
-  if(await saveState()){ renderAll(); toast("Отмечено 0:0"); }
-  else { if(prev===undefined) delete STATE.goals[mid]; else STATE.goals[mid]=prev; renderAll(); }
+async function setNoGoal(mid){ await adminSaveState(s=>{s.goals[mid]="nogoal";}, "0:0"); }
+async function clearGoal(mid){ await adminSaveState(s=>{delete s.goals[mid];}, "Сброшено"); }
+async function adminSaveState(mutate, okMsg){
+  const copy=JSON.parse(JSON.stringify(STATE));
+  mutate(copy);
+  const { error } = await supabase.rpc("update_game_state",{new_data:copy,pass:adminPass});
+  if(error){ toast(error.code==="42501"?"Неверный пароль админа":"Ошибка",true); return; }
+  STATE=copy; renderAll(); toast(okMsg);
 }
-async function clearGoal(mid){
-  const prev=STATE.goals[mid]; delete STATE.goals[mid];
-  if(await saveState()){ renderAll(); toast("Сброшено"); }
-  else { STATE.goals[mid]=prev; renderAll(); }
-}
-function login(){
-  const pw=prompt("Пароль админа:");
-  if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа"); }
-}
-function logout(){ isAdmin=false; adminPass=""; renderAll(); }
 
-// Делегирование кликов вместо inline onclick (нужно для type=module)
+async function saveMatch(mid){
+  const day=document.getElementById("ed-day-"+mid).value.trim();
+  const teams=document.getElementById("ed-teams-"+mid).value.trim();
+  const ko=document.getElementById("ed-ko-"+mid).value;
+  const venue=document.getElementById("ed-venue-"+mid).value.trim();
+  const sort=parseInt(document.getElementById("ed-sort-"+mid).value,10)||0;
+  if(!day||!teams||!ko){ toast("Заполни день, команды и время",true); return; }
+  const iso=new Date(ko).toISOString();
+  const { error } = await supabase.rpc("upsert_match",{p_pass:adminPass,p_id:mid,p_day:day,p_teams:teams,p_kickoff:iso,p_venue:venue,p_sort:sort});
+  if(error){ toast(error.code==="42501"?"Неверный пароль":"Ошибка: "+error.message,true); return; }
+  await loadAll(); renderAll(); toast("Матч сохранён");
+}
+async function delMatch(mid){
+  if(!confirm("Удалить матч "+mid+"?")) return;
+  const { error } = await supabase.rpc("delete_match",{p_pass:adminPass,p_id:mid});
+  if(error){ toast(error.code==="42501"?"Неверный пароль":"Ошибка",true); return; }
+  await loadAll(); renderAll(); toast("Матч удалён");
+}
+async function addMatch(){
+  const id=document.getElementById("new-id").value.trim();
+  const day=document.getElementById("new-day").value.trim();
+  const teams=document.getElementById("new-teams").value.trim();
+  const ko=document.getElementById("new-ko").value;
+  const venue=document.getElementById("new-venue").value.trim();
+  const sort=parseInt(document.getElementById("new-sort").value,10)||0;
+  if(!id||!day||!teams||!ko){ toast("Заполни ID, день, команды, время",true); return; }
+  const iso=new Date(ko).toISOString();
+  const { error } = await supabase.rpc("upsert_match",{p_pass:adminPass,p_id:id,p_day:day,p_teams:teams,p_kickoff:iso,p_venue:venue,p_sort:sort});
+  if(error){ toast(error.code==="42501"?"Неверный пароль":"Ошибка: "+error.message,true); return; }
+  await loadAll(); renderAll(); toast("Матч добавлен");
+}
+async function setPin(name){
+  const key="pin-"+name.replace(/ /g,'_');
+  const pin=document.getElementById(key)?.value.trim()||"";
+  if(pin.length<4){ toast("PIN минимум 4 цифры",true); return; }
+  const { error } = await supabase.rpc("admin_set_player_pin",{p_pass:adminPass,p_name:name,p_new_pin:pin});
+  if(error){ toast(error.code==="42501"?"Неверный пароль админа":"Ошибка: "+error.message,true); return; }
+  document.getElementById(key).value="";
+  await loadAll(); renderAll(); toast(`PIN для ${name} установлен ✓`);
+}
+function closeModal(){ document.getElementById("modalRoot").innerHTML=""; }
+
 document.body.addEventListener("click",(e)=>{
   const b=e.target.closest("[data-action]"); if(!b) return;
-  const a=b.dataset.action; const mid=b.dataset.mid;
-  if(a==="savePicks") savePicks(mid);
-  else if(a==="setGoal") setGoal(mid);
-  else if(a==="setNoGoal") setNoGoal(mid);
-  else if(a==="clearGoal") clearGoal(mid);
-  else if(a==="login") login();
-  else if(a==="logout") logout();
+  const a=b.dataset.action; const mid=b.dataset.mid; const name=b.dataset.name;
+  ({ bet:()=>bet(mid), setGoal:()=>setGoal(mid), setNoGoal:()=>setNoGoal(mid),
+     clearGoal:()=>clearGoal(mid), saveMatch:()=>saveMatch(mid), delMatch:()=>delMatch(mid),
+     addMatch, login:showLogin, doLogin, closeModal, logoutMe,
+     adminOn, adminOff, setPin:()=>setPin(name) }[a]||(()=>{}))();
 });
 
 document.querySelectorAll(".tab").forEach(tab=>{
@@ -310,11 +477,11 @@ document.querySelectorAll(".tab").forEach(tab=>{
 });
 
 (async function init(){
-  await loadState();
+  await loadAll();
   document.getElementById("loading").classList.add("hide");
   document.getElementById("games").classList.remove("hide");
   renderAll();
-  setInterval(async()=>{ if(isAdmin)return; await loadState(); renderAll(); }, 10000);
+  setInterval(async()=>{ if(isAdmin)return; await loadAll(); renderAll(); }, 12000);
 })();
 </script>
 </body>
