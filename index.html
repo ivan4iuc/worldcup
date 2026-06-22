@@ -74,6 +74,10 @@
   .tab{flex:1;text-align:center;padding:10px;border-radius:10px;background:var(--surface);
     border:1px solid var(--line);cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);}
   .tab.active{background:var(--accent);color:#04240c;border-color:var(--accent);}
+  .match-tabs{display:flex;gap:4px;margin-bottom:12px;}
+  .mtab{flex:1;text-align:center;padding:7px;border-radius:8px;background:var(--surface);
+    border:1px solid var(--line);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);}
+  .mtab.active{background:var(--surface2);border-color:var(--accent2);color:var(--accent2);font-weight:600;}
   .hide{display:none;}
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
@@ -153,6 +157,7 @@ let myPin = null;
 let isAdmin = false;
 let adminPass = "";
 let currentTab = "games";
+let matchFilter = "upcoming";
 const now = () => new Date();
 
 try {
@@ -229,8 +234,16 @@ function toLocalInput(d){
 
 function renderGames(){
   const root=document.getElementById("games"); let html=""; let lastDay=null;
-  if(MATCHES.length===0 && !isAdmin){ root.innerHTML='<div class="card"><div class="empty">Расписание пока не добавлено</div></div>'; return; }
-  MATCHES.forEach(m=>{
+  const cutoff=new Date(Date.now()-2*60*60*1000);
+  const displayed=matchFilter==="upcoming"?MATCHES.filter(m=>m.kickoff>cutoff)
+    :matchFilter==="past"?MATCHES.filter(m=>m.kickoff<=cutoff):MATCHES;
+  const tabLabels={upcoming:"Предстоящие",all:"Все матчи",past:"Прошедшие"};
+  html+=`<div class="match-tabs">${["upcoming","all","past"].map(f=>`<button class="mtab${matchFilter===f?" active":""}" data-action="setFilter" data-filter="${f}">${tabLabels[f]}</button>`).join("")}</div>`;
+  if(displayed.length===0 && !isAdmin){
+    html+='<div class="card"><div class="empty">Нет матчей в этой категории</div></div>';
+    root.innerHTML=html; return;
+  }
+  displayed.forEach(m=>{
     if(m.day!==lastDay){ if(lastDay!==null)html+="</div>";
       html+=`<div class="card"><div class="day-title"><i></i>${m.day}</div>`; lastDay=m.day; }
     const goal=STATE.goals[m.id];
@@ -250,7 +263,7 @@ function renderGames(){
       const others=picks.filter(p=>p.player!==me).length;
       body='<div class="picks">';
       if(mine!==null){const mLbl=mine===0?'0:0':`${mine}'`; body+=`<div class="pick-row me"><span class="who">${me} (ты)</span><span>${mLbl}</span></div>`;}
-      body+=`<div class="pick-row"><span class="who">🔒 скрыто до начала</span><span>${others} ${others===1?'ставка':'ставок'}</span></div>`;
+      body+=`<div class="pick-row"><span class="who">🔒 скрыто до начала</span><span>${picks.length}/${PLAYERS.length} поставили</span></div>`;
       body+='</div>';
     } else {
       if(picks.length){ body='<div class="picks">';
@@ -464,7 +477,8 @@ document.body.addEventListener("click",(e)=>{
   ({ bet:()=>bet(mid), setGoal:()=>setGoal(mid), setNoGoal:()=>setNoGoal(mid),
      clearGoal:()=>clearGoal(mid), saveMatch:()=>saveMatch(mid), delMatch:()=>delMatch(mid),
      addMatch, login:showLogin, doLogin, closeModal, logoutMe,
-     adminOn, adminOff, setPin:()=>setPin(name) }[a]||(()=>{}))();
+     adminOn, adminOff, setPin:()=>setPin(name),
+     setFilter:()=>{ matchFilter=b.dataset.filter; renderGames(); } }[a]||(()=>{}))();
 });
 
 document.querySelectorAll(".tab").forEach(tab=>{
