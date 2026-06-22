@@ -411,7 +411,13 @@ async function doLogin(){
 }
 function logoutMe(){ me=null; myPin=null; saveSession(); renderAll(); toast("Вышел"); }
 
-function adminOn(){ const pw=prompt("Пароль админа:"); if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа"); } }
+async function adminOn(){
+  const pw=prompt("Пароль админа:");
+  if(!pw) return;
+  const { data: ok, error } = await supabase.rpc("check_admin_pass",{p_pass:pw});
+  if(error||!ok){ toast("Неверный пароль",true); return; }
+  adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа");
+}
 function adminOff(){ isAdmin=false; adminPass=""; renderAll(); }
 
 const NOTIFY_URL = "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify";
