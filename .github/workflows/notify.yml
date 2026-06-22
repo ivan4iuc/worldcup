@@ -17,3 +17,5 @@ jobs:
           if [ "$HOUR" = "09" ] && [ "$MINUTE" -lt "30" ]; then
             curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=standings" || true
           fi
+      - name: Auto-update — результаты матчей из ESPN
+        run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=auto-update" || true
