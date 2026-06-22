@@ -414,19 +414,26 @@ function logoutMe(){ me=null; myPin=null; saveSession(); renderAll(); toast("В�
 function adminOn(){ const pw=prompt("Пароль админа:"); if(pw){ adminPass=pw; isAdmin=true; renderAll(); toast("Режим админа"); } }
 function adminOff(){ isAdmin=false; adminPass=""; renderAll(); }
 
+const NOTIFY_URL = "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify";
+
 async function setGoal(mid){
   const v=parseInt(document.getElementById("goal-"+mid).value,10);
   if(isNaN(v)||v<1||v>120){ toast("Минута 1–120",true); return; }
-  await adminSaveState(s=>{s.goals[mid]=v;}, "Гол на "+v+"'");
+  const ok=await adminSaveState(s=>{s.goals[mid]=v;}, "Гол на "+v+"'");
+  if(ok) fetch(`${NOTIFY_URL}?type=goal&match=${mid}&minute=${v}`).catch(()=>{});
 }
-async function setNoGoal(mid){ await adminSaveState(s=>{s.goals[mid]="nogoal";}, "0:0"); }
+async function setNoGoal(mid){
+  const ok=await adminSaveState(s=>{s.goals[mid]="nogoal";}, "0:0");
+  if(ok) fetch(`${NOTIFY_URL}?type=goal&match=${mid}&nogoal=1`).catch(()=>{});
+}
 async function clearGoal(mid){ await adminSaveState(s=>{delete s.goals[mid];}, "Сброшено"); }
 async function adminSaveState(mutate, okMsg){
   const copy=JSON.parse(JSON.stringify(STATE));
   mutate(copy);
   const { error } = await supabase.rpc("update_game_state",{new_data:copy,pass:adminPass});
-  if(error){ toast(error.code==="42501"?"Неверный пароль админа":"Ошибка",true); return; }
+  if(error){ toast(error.code==="42501"?"Неверный пароль админа":"Ошибка",true); return false; }
   STATE=copy; renderAll(); toast(okMsg);
+  return true;
 }
 
 async function saveMatch(mid){
