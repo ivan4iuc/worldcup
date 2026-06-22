@@ -1,21 +1,25 @@
 name: Match Notifications
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/8 * * * *'   # каждые 8 минут
   workflow_dispatch:
+
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Reminder
+      - name: Reminder — 2 часа до матча
         run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=reminder" || true
-      - name: Started
+
+      - name: Match started — ставки закрыты
         run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=started" || true
-      - name: Standings 09:00 UTC
+
+      - name: Daily standings — таблица лидеров (09:00–09:29 UTC)
         run: |
           HOUR=$(date -u +%H); MINUTE=$(date -u +%M)
           if [ "$HOUR" = "09" ] && [ "$MINUTE" -lt "30" ]; then
             curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=standings" || true
           fi
+
       - name: Auto-update — результаты матчей из ESPN
         run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=auto-update" || true
