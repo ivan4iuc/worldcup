@@ -1,0 +1,19 @@
+name: Match Notifications
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reminder
+        run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=reminder" || true
+      - name: Started
+        run: curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=started" || true
+      - name: Standings 09:00 UTC
+        run: |
+          HOUR=$(date -u +%H); MINUTE=$(date -u +%M)
+          if [ "$HOUR" = "09" ] && [ "$MINUTE" -lt "30" ]; then
+            curl -sf "https://qklklgzuentjrgcbuujo.supabase.co/functions/v1/notify?type=standings" || true
+          fi
