@@ -236,7 +236,7 @@ function renderGames(){
   const root=document.getElementById("games"); let html=""; let lastDay=null;
   const cutoff=new Date(Date.now()-2*60*60*1000);
   const displayed=matchFilter==="upcoming"?MATCHES.filter(m=>m.kickoff>cutoff)
-    :matchFilter==="past"?MATCHES.filter(m=>m.kickoff<=cutoff):MATCHES;
+    :matchFilter==="past"?MATCHES.filter(m=>m.kickoff<=cutoff).reverse():MATCHES;
   const tabLabels={upcoming:"Предстоящие",all:"Все матчи",past:"Прошедшие"};
   html+=`<div class="match-tabs">${["upcoming","all","past"].map(f=>`<button class="mtab${matchFilter===f?" active":""}" data-action="setFilter" data-filter="${f}">${tabLabels[f]}</button>`).join("")}</div>`;
   if(displayed.length===0 && !isAdmin){
