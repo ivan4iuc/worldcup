@@ -70,6 +70,8 @@
     background:rgba(227,179,65,.06);border:1px dashed var(--gold);border-radius:10px;padding:10px;}
   .goal-input input{width:80px;}
   .goal-input button{background:var(--gold);color:#3a2c00;}
+  .gchip{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:13px;}
+  .gchip b{cursor:pointer;color:var(--danger);font-weight:700;}
   .tabs{display:flex;gap:6px;margin-bottom:16px;}
   .tab{flex:1;text-align:center;padding:10px;border-radius:10px;background:var(--surface);
     border:1px solid var(--line);cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);}
@@ -107,7 +109,7 @@
 </head>
 <body>
   <h1>⚽ Кубок мира 2026</h1>
-  <div class="sub">Угадай минуту первого гола</div>
+  <div class="sub">Угадай минуты голов</div>
 
   <div class="tabs">
     <div class="tab active" data-tab="games">Матчи</div>
@@ -127,14 +129,19 @@
       <div class="day-title"><i></i>Как играем</div>
       <div class="rules">
         Войди под своим именем (имя + личный 4-значный PIN — задаётся при первом входе).
-        Для каждого матча укажи <b>минуту</b>, на которой, по-твоему, будет первый гол.<br><br>
-        До начала матча чужие ставки <b>скрыты 🔒</b> — каждый видит только свою.
-        После стартового свистка все ставки открываются.<br><br>
-        • <b>Точное попадание</b> = <b>3 очка</b> ★<br>
-        • <b>Ближе всех</b> (но не точно) = <b>1 очко</b>. При равном расстоянии очко делят все ближайшие.<br>
-        • Поставил <b>0</b> = предсказываешь матч <b>0:0</b>. Если матч завершился без голов — <b>3 очка</b> ★<br>
-        • Если матч закончился 0:0, а ты поставил не 0 — <b>очков нет</b>.<br><br>
-        Минуту первого гола вносит администратор после матча.
+        Для каждого матча укажи <b>минуту</b> (0–120), на которой ждёшь гол. Менять ставку можно
+        сколько угодно раз до начала матча — после стартового свистка стоп.<br><br>
+        До начала матча чужие ставки <b>скрыты 🔒</b> — каждый видит только свою. После начала — открыты.<br><br>
+        <b>Очки начисляются за каждый гол отдельно:</b><br>
+        • <b>Точно угадал</b> минуту гола = <b>3 очка</b> ★<br>
+        • <b>Ближе всех</b> к этой минуте (но не точно) = <b>1 очко</b> (при равенстве — каждому из ближайших).<br>
+        • Если кто-то угадал точно — «ближе всех» в этом раунде не присуждается.<br><br>
+        В матче несколько голов → разыгрывается несколько раундов (по 3 очка за гол). Одна твоя ставка
+        может принести очки сразу за несколько голов. Чем больше голов — тем больше очков 😄<br><br>
+        • Ставка <b>0</b> = прогноз на <b>0:0</b>. Если матч без голов — поставившим 0 по <b>3 очка</b>, остальным ноль.<br><br>
+        Результаты вносятся автоматически (минуты голов и проход по сетке), админ может поправить вручную.
+        Таблица разбита на вкладки: <b>Групповой этап</b> (сыгран по старым правилам — первый гол),
+        <b>Плей-офф</b> и <b>Общий зачёт</b>.
       </div>
     </div>
   </div>
@@ -158,6 +165,7 @@ let isAdmin = false;
 let adminPass = "";
 let currentTab = "games";
 let matchFilter = "upcoming";
+let boardFilter = "all";
 const now = () => new Date();
 
 try {
@@ -188,7 +196,8 @@ async function loadAll(){
   if(!STATE.goals) STATE.goals={};
   MATCHES = (mt.data||[]).map(m=>({
     id:m.id, day:m.day, teams:m.teams, venue:m.venue,
-    kickoff:new Date(m.kickoff), sort:m.sort_order
+    kickoff:new Date(m.kickoff), sort:m.sort_order,
+    team1:m.team1, team2:m.team2
   }));
   PLAYERS = pl.data||[];
   setStatus("");
@@ -198,28 +207,39 @@ function started(m){ return now() >= m.kickoff; }
 function fmtTime(d){
   return d.toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
 }
+const isPlayoff=m=>m.sort>40;
+// Нормализация результата матча: массив минут (плей-офф), одна минута (группа), "nogoal" или undefined.
+function goalList(goal){
+  if(goal===undefined||goal===null) return undefined;
+  if(goal==="nogoal") return "nogoal";
+  return Array.isArray(goal)?goal.map(Number):[Number(goal)];
+}
+// Очки за каждый гол отдельно: 3 точно / 1 ближе всех (поровну при равенстве; точное закрывает раунд).
+// Ставка 0 = прогноз 0:0 и в раундах с реальными голами не участвует.
 function scoreMatch(mid){
-  const goal=STATE.goals[mid]; const picks=STATE.picks[mid]||[]; const res={};
-  if(goal===undefined||picks.length===0) return res;
-  if(goal==="nogoal"){
-    // 0:0 матч: очки только тем, кто поставил 0 (предсказал 0:0) → 3 очка
-    picks.forEach(p=>{ if(Number(p.minute)===0) res[p.player]=3; });
+  const gl=goalList(STATE.goals[mid]); const picks=STATE.picks[mid]||[]; const res={};
+  if(gl===undefined||picks.length===0) return res;
+  if(gl==="nogoal"){
+    picks.forEach(p=>{ if(Number(p.minute)===0) res[p.player]={pts:3,exact:1,close:0}; });
     return res;
   }
-  const g=Number(goal);
-  const sp=picks.filter(p=>Number(p.minute)!==0); // ставки на 0:0 не участвуют в «ближе всех»
-  if(sp.length===0) return res;
-  let best=Infinity;
-  sp.forEach(p=>best=Math.min(best,Math.abs(Number(p.minute)-g)));
-  sp.forEach(p=>{const d=Math.abs(Number(p.minute)-g);
-    if(d===0)res[p.player]=3; else if(d===best)res[p.player]=1;});
+  const sp=picks.filter(p=>Number(p.minute)!==0);
+  for(const g of gl){
+    if(!sp.length) break;
+    let best=Infinity;
+    sp.forEach(p=>best=Math.min(best,Math.abs(Number(p.minute)-g)));
+    sp.forEach(p=>{const d=Math.abs(Number(p.minute)-g);
+      if(!res[p.player]) res[p.player]={pts:0,exact:0,close:0};
+      if(d===0){res[p.player].pts+=3;res[p.player].exact++;}
+      else if(d===best){res[p.player].pts+=1;res[p.player].close++;}});
+  }
   return res;
 }
-function totals(){
+function totals(filterFn){
   const t={}; PLAYERS.forEach(p=>t[p.name]={pts:0,exact:0,wins:0});
-  MATCHES.forEach(m=>{const s=scoreMatch(m.id);
-    Object.entries(s).forEach(([pl,pts])=>{ if(!t[pl])t[pl]={pts:0,exact:0,wins:0};
-      t[pl].pts+=pts; if(pts===3)t[pl].exact++; else if(pts===1)t[pl].wins++;});});
+  MATCHES.filter(filterFn||(()=>true)).forEach(m=>{const s=scoreMatch(m.id);
+    Object.entries(s).forEach(([pl,c])=>{ if(!t[pl])t[pl]={pts:0,exact:0,wins:0};
+      t[pl].pts+=c.pts; t[pl].exact+=c.exact; t[pl].wins+=c.close;});});
   return t;
 }
 function myPick(mid){
@@ -247,10 +267,11 @@ function renderGames(){
     if(m.day!==lastDay){ if(lastDay!==null)html+="</div>";
       html+=`<div class="card"><div class="day-title"><i></i>${m.day}</div>`; lastDay=m.day; }
     const goal=STATE.goals[m.id];
+    const gl=goalList(goal);
     const isStarted=started(m);
     let badge;
-    if(goal==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0</span>';
-    else if(goal!==undefined) badge=`<span class="goal-badge badge-goal">1-й гол: ${goal}'</span>`;
+    if(gl==="nogoal") badge='<span class="goal-badge badge-nogoal">0:0</span>';
+    else if(gl!==undefined) badge=`<span class="goal-badge badge-goal">${gl.length>1?'голы':'1-й гол'}: ${gl.join("', ")}'</span>`;
     else if(isStarted) badge='<span class="goal-badge badge-pending">идёт / ждём гол</span>';
     else badge='<span class="goal-badge badge-locked">🔒 ставки открыты</span>';
 
@@ -267,10 +288,11 @@ function renderGames(){
       body+='</div>';
     } else {
       if(picks.length){ body='<div class="picks">';
-        picks.forEach(p=>{const pts=scores[p.player]; let cls=""; if(pts===3)cls="exact"; else if(pts===1)cls="win";
+        picks.forEach(p=>{const cell=scores[p.player]; const pts=cell?cell.pts:0; let cls=""; if(cell&&cell.exact)cls="exact"; else if(pts>0)cls="win";
           if(p.player===me) cls+=" me";
           const mLbl=Number(p.minute)===0?'0:0':`${p.minute}'`;
-          body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${mLbl}</span></div>`;});
+          const ptsLbl=pts>0?` <b>+${pts}</b>`:'';
+          body+=`<div class="pick-row ${cls}"><span class="who">${p.player}</span><span>${mLbl}${ptsLbl}</span></div>`;});
         body+='</div>';
       } else { body='<div class="picks"><div class="empty">Никто не поставил</div></div>'; }
     }
@@ -291,15 +313,36 @@ function renderGames(){
 
     let adminBlock="";
     if(isAdmin){
-      const cur=(goal!==undefined&&goal!=="nogoal")?goal:"";
-      adminBlock=`<div class="goal-input">
-        <span style="font-size:12px;color:var(--gold);font-weight:600;">Минута 1-го гола:</span>
-        <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="мин" value="${cur}" />
-        <button class="small" data-action="setGoal" data-mid="${m.id}">Гол</button>
-        <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
-        ${goal!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Сброс</button>`:""}
-      </div>
-      <details class="admin-edit"><summary>✎ Редактировать матч</summary>
+      let goalUI;
+      if(isPlayoff(m)){
+        const arr=Array.isArray(gl)?gl:[];
+        const chips=arr.map((mn,i)=>`<span class="gchip">${mn}'<b data-action="removeGoal" data-mid="${m.id}" data-idx="${i}">×</b></span>`).join("");
+        goalUI=`<div class="goal-input">
+          <span style="font-size:12px;color:var(--gold);font-weight:600;">Голы (мин):</span>
+          ${chips||(gl==="nogoal"?'<span class="hint" style="margin:0;">0:0</span>':'<span class="hint" style="margin:0;">пока нет</span>')}
+          <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="мин" style="width:72px;" />
+          <button class="small" data-action="addGoal" data-mid="${m.id}">+ Гол</button>
+          <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
+          ${gl!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Сброс</button>`:""}
+        </div>`;
+        if(m.team1&&m.team2){
+          goalUI+=`<div class="goal-input" style="margin-top:6px;">
+            <span style="font-size:12px;color:var(--accent2);font-weight:600;">Победитель (бэкап):</span>
+            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="1">🏆 ${m.team1}</button>
+            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="2">🏆 ${m.team2}</button>
+          </div>`;
+        }
+      } else {
+        const cur=(gl!==undefined&&gl!=="nogoal")?gl[0]:"";
+        goalUI=`<div class="goal-input">
+          <span style="font-size:12px;color:var(--gold);font-weight:600;">Минута 1-го гола:</span>
+          <input id="goal-${m.id}" type="number" min="1" max="120" placeholder="мин" value="${cur}" />
+          <button class="small" data-action="setGoal" data-mid="${m.id}">Гол</button>
+          <button class="small secondary" data-action="setNoGoal" data-mid="${m.id}">0:0</button>
+          ${gl!==undefined?`<button class="small secondary" data-action="clearGoal" data-mid="${m.id}">Сброс</button>`:""}
+        </div>`;
+      }
+      adminBlock=goalUI+`<details class="admin-edit"><summary>✎ Редактировать матч</summary>
         <div class="grid2">
           <input id="ed-day-${m.id}" class="full" value="${m.day}" placeholder="День" />
           <input id="ed-teams-${m.id}" class="full" value="${m.teams.replace(/"/g,'&quot;')}" placeholder="Команды" />
@@ -344,10 +387,14 @@ function renderGames(){
 }
 
 function renderBoard(){
-  const root=document.getElementById("board"); const t=totals();
+  const root=document.getElementById("board");
+  const filt = boardFilter==="group"?(m=>!isPlayoff(m)) : boardFilter==="playoff"?(m=>isPlayoff(m)) : null;
+  const t=totals(filt);
   const ranked=PLAYERS.map(p=>({name:p.name,...(t[p.name]||{pts:0,exact:0,wins:0})}))
     .sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
-  let html='<div class="card"><div class="day-title"><i></i>🏆 Таблица лидеров</div>';
+  const labels={all:"Общий зачёт",group:"Групповой этап",playoff:"Плей-офф"};
+  let html=`<div class="match-tabs">${["all","group","playoff"].map(f=>`<button class="mtab${boardFilter===f?" active":""}" data-action="setBoardFilter" data-filter="${f}">${labels[f]}</button>`).join("")}</div>`;
+  html+=`<div class="card"><div class="day-title"><i></i>🏆 ${labels[boardFilter]}</div>`;
   let prevPts=null,rank=0,seen=0;
   ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
     const g=rank<=3&&r.pts>0?`g${rank}`:"";
@@ -433,6 +480,33 @@ async function setNoGoal(mid){
   if(ok) fetch(`${NOTIFY_URL}?type=goal&match=${mid}&nogoal=1`).catch(()=>{});
 }
 async function clearGoal(mid){ await adminSaveState(s=>{delete s.goals[mid];}, "Сброшено"); }
+async function addGoal(mid){
+  const el=document.getElementById("goal-"+mid);
+  const v=parseInt(el.value,10);
+  if(isNaN(v)||v<1||v>120){ toast("Минута 1–120",true); return; }
+  const ok=await adminSaveState(s=>{
+    const cur=Array.isArray(s.goals[mid])?s.goals[mid].slice():[];
+    cur.push(v); cur.sort((a,b)=>a-b);
+    s.goals[mid]=cur;
+  }, "Гол на "+v+"'");
+  if(ok&&el) el.value="";
+}
+async function removeGoal(mid,idx){
+  await adminSaveState(s=>{
+    if(!Array.isArray(s.goals[mid])) return;
+    s.goals[mid].splice(idx,1);
+    if(s.goals[mid].length===0) delete s.goals[mid];
+  }, "Гол удалён");
+}
+async function setWinner(mid,slot){
+  const m=MATCHES.find(x=>x.id===mid);
+  const name=slot===1?(m&&m.team1):(m&&m.team2);
+  if(!confirm("Победитель: "+name+"?\nКоманда пройдёт в следующий раунд сетки.")) return;
+  const { data, error } = await supabase.rpc("admin_set_winner",{p_pass:adminPass,p_match_id:mid,p_winner_slot:slot});
+  if(error){ toast(error.code==="42501"?"Неверный пароль админа":"Ошибка: "+error.message,true); return; }
+  if(data&&data.ok===false){ toast("Не удалось: "+(data.err||""),true); return; }
+  await loadAll(); renderAll(); toast("Победитель: "+name+" ✓");
+}
 async function adminSaveState(mutate, okMsg){
   const copy=JSON.parse(JSON.stringify(STATE));
   mutate(copy);
@@ -488,10 +562,14 @@ document.body.addEventListener("click",(e)=>{
   const b=e.target.closest("[data-action]"); if(!b) return;
   const a=b.dataset.action; const mid=b.dataset.mid; const name=b.dataset.name;
   ({ bet:()=>bet(mid), setGoal:()=>setGoal(mid), setNoGoal:()=>setNoGoal(mid),
-     clearGoal:()=>clearGoal(mid), saveMatch:()=>saveMatch(mid), delMatch:()=>delMatch(mid),
+     clearGoal:()=>clearGoal(mid), addGoal:()=>addGoal(mid),
+     removeGoal:()=>removeGoal(mid,parseInt(b.dataset.idx,10)),
+     setWinner:()=>setWinner(mid,parseInt(b.dataset.slot,10)),
+     saveMatch:()=>saveMatch(mid), delMatch:()=>delMatch(mid),
      addMatch, login:showLogin, doLogin, closeModal, logoutMe,
      adminOn, adminOff, setPin:()=>setPin(name),
-     setFilter:()=>{ matchFilter=b.dataset.filter; renderGames(); } }[a]||(()=>{}))();
+     setFilter:()=>{ matchFilter=b.dataset.filter; renderGames(); },
+     setBoardFilter:()=>{ boardFilter=b.dataset.filter; renderBoard(); } }[a]||(()=>{}))();
 });
 
 document.querySelectorAll(".tab").forEach(tab=>{
