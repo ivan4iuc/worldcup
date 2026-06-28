@@ -208,6 +208,24 @@ function fmtTime(d){
   return d.toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
 }
 const isPlayoff=m=>m.sort>40;
+// Флаги команд (ключ — точное название из БД). Плейсхолдеры («ФИНАЛ», «Поб. …») не матчатся.
+const FLAGS={
+  "Австралия":"🇦🇺","Австрия":"🇦🇹","Алжир":"🇩🇿","Англия":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Аргентина":"🇦🇷","Бельгия":"🇧🇪",
+  "Босния и Герц.":"🇧🇦","Босния и Герцеговина":"🇧🇦","Бразилия":"🇧🇷","Гаити":"🇭🇹","Гана":"🇬🇭",
+  "Германия":"🇩🇪","ДР Конго":"🇨🇩","Египет":"🇪🇬","Иордания":"🇯🇴","Ирак":"🇮🇶","Иран":"🇮🇷",
+  "Испания":"🇪🇸","Кабо-Верде":"🇨🇻","Канада":"🇨🇦","Катар":"🇶🇦","Колумбия":"🇨🇴","Кот-д'Ивуар":"🇨🇮",
+  "Кюрасао":"🇨🇼","Марокко":"🇲🇦","Мексика":"🇲🇽","Нидерланды":"🇳🇱","Новая Зеландия":"🇳🇿","Норвегия":"🇳🇴",
+  "Панама":"🇵🇦","Парагвай":"🇵🇾","Португалия":"🇵🇹","Сауд. Аравия":"🇸🇦","Сенегал":"🇸🇳","США":"🇺🇸",
+  "Тунис":"🇹🇳","Турция":"🇹🇷","Узбекистан":"🇺🇿","Уругвай":"🇺🇾","Франция":"🇫🇷","Хорватия":"🇭🇷",
+  "Чехия":"🇨🇿","Швейцария":"🇨🇭","Швеция":"🇸🇪","Шотландия":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Эквадор":"🇪🇨","ЮАР":"🇿🇦",
+  "Южная Корея":"🇰🇷","Япония":"🇯🇵"
+};
+function flag(name){ return FLAGS[(name||"").trim()]||""; }
+// Добавляет флаг перед каждой страной в строке "A — B" (или одиночное имя).
+function flagify(s){
+  if(!s) return s;
+  return s.split(" — ").map(p=>{ const f=flag(p); return f?f+" "+p.trim():p; }).join(" — ");
+}
 // Нормализация результата матча: массив минут (плей-офф), одна минута (группа), "nogoal" или undefined.
 function goalList(goal){
   if(goal===undefined||goal===null) return undefined;
@@ -328,8 +346,8 @@ function renderGames(){
         if(m.team1&&m.team2){
           goalUI+=`<div class="goal-input" style="margin-top:6px;">
             <span style="font-size:12px;color:var(--accent2);font-weight:600;">Победитель (бэкап):</span>
-            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="1">🏆 ${m.team1}</button>
-            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="2">🏆 ${m.team2}</button>
+            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="1">🏆 ${flagify(m.team1)}</button>
+            <button class="small secondary" data-action="setWinner" data-mid="${m.id}" data-slot="2">🏆 ${flagify(m.team2)}</button>
           </div>`;
         }
       } else {
@@ -356,7 +374,7 @@ function renderGames(){
     }
 
     html+=`<div class="match"><div class="match-head">
-      <div><div class="teams">${m.teams}</div><div class="meta">${fmtTime(m.kickoff)}${m.venue?' · '+m.venue:''}</div></div>${badge}
+      <div><div class="teams">${flagify(m.teams)}</div><div class="meta">${fmtTime(m.kickoff)}${m.venue?' · '+m.venue:''}</div></div>${badge}
       </div>${body}${betForm}${adminBlock}</div>`;
   });
   if(lastDay!==null) html+="</div>";
@@ -393,7 +411,7 @@ function renderBoard(){
   const ranked=PLAYERS.map(p=>({name:p.name,...(t[p.name]||{pts:0,exact:0,wins:0})}))
     .sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
   const labels={all:"Общий зачёт",group:"Групповой этап",playoff:"Плей-офф"};
-  let html=`<div class="match-tabs">${["all","group","playoff"].map(f=>`<button class="mtab${boardFilter===f?" active":""}" data-action="setBoardFilter" data-filter="${f}">${labels[f]}</button>`).join("")}</div>`;
+  let html=`<div class="match-tabs">${["all","playoff","group"].map(f=>`<button class="mtab${boardFilter===f?" active":""}" data-action="setBoardFilter" data-filter="${f}">${labels[f]}</button>`).join("")}</div>`;
   html+=`<div class="card"><div class="day-title"><i></i>🏆 ${labels[boardFilter]}</div>`;
   let prevPts=null,rank=0,seen=0;
   ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
