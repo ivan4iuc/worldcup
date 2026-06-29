@@ -60,6 +60,7 @@
   .lb-name{flex:1;font-weight:500;}
   .lb-name.me{color:var(--accent2);}
   .lb-detail{font-size:12px;color:var(--muted);}
+  .host-tag{font-size:11px;color:var(--danger);font-weight:600;white-space:nowrap;}
   .lb-pts{font-size:18px;font-weight:700;color:var(--gold);min-width:42px;text-align:right;margin-left:auto;}
   .topbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;justify-content:space-between;}
   .who-badge{background:rgba(56,139,253,.15);border:1px solid var(--accent2);
@@ -256,8 +257,8 @@ function scoreMatch(mid){
   }
   for(const pl in tally){
     const t=tally[pl];
-    const pts = stack ? (t.exact*3+t.close) : (t.exact>0?3:(t.close>0?1:0));
-    if(pts>0) res[pl]={pts, exact:t.exact>0?1:0, close:(t.exact===0&&t.close>0)?1:0};
+    if(stack){ const pts=t.exact*3+t.close; if(pts>0) res[pl]={pts,exact:t.exact,close:t.close}; }
+    else { const pts=t.exact>0?3:(t.close>0?1:0); if(pts>0) res[pl]={pts,exact:t.exact>0?1:0,close:(t.exact===0&&t.close>0)?1:0}; }
   }
   return res;
 }
@@ -421,14 +422,18 @@ function renderBoard(){
   const labels={all:"Общий зачёт",group:"Групповой этап",playoff:"Плей-офф"};
   let html=`<div class="match-tabs">${["all","playoff","group"].map(f=>`<button class="mtab${boardFilter===f?" active":""}" data-action="setBoardFilter" data-filter="${f}">${labels[f]}</button>`).join("")}</div>`;
   html+=`<div class="card"><div class="day-title"><i></i>🏆 ${labels[boardFilter]}</div>`;
+  const maxPts=ranked.length?ranked[0].pts:0;
+  const minPts=ranked.length?ranked[ranked.length-1].pts:0;
+  const hasLast=minPts<maxPts; // плашка только при явном аутсайдере
   let prevPts=null,rank=0,seen=0;
   ranked.forEach(r=>{ seen++; if(r.pts!==prevPts){rank=seen;prevPts=r.pts;}
     const g=rank<=3&&r.pts>0?`g${rank}`:"";
     let d=[]; if(r.exact)d.push(`${r.exact}× точно ★`); if(r.wins)d.push(`${r.wins}× ближе всех`);
     const det=d.length?d.join(" · "):"пока нет очков";
     const meClass=r.name===me?" me":"";
+    const hostTag=(hasLast&&r.pts===minPts)?' <span class="host-tag">(Хост Финала 💀)</span>':'';
     html+=`<div class="lb-row"><div class="lb-rank ${g}">${rank}</div>
-      <div><div class="lb-name${meClass}">${r.name}${r.name===me?' (ты)':''}</div><div class="lb-detail">${det}</div></div>
+      <div><div class="lb-name${meClass}">${r.name}${r.name===me?' (ты)':''}${hostTag}</div><div class="lb-detail">${det}</div></div>
       <div class="lb-pts">${r.pts}</div></div>`;
   });
   html+="</div>"; root.innerHTML=html;
