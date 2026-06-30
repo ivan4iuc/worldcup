@@ -100,6 +100,8 @@
   .modal-box select,.modal-box input{width:100%;margin-bottom:10px;}
   .modal-box .row{display:flex;gap:8px;}
   .modal-box .row button{flex:1;}
+  .modal-box.rules-modal{max-width:460px;max-height:84vh;overflow-y:auto;}
+  .modal-box.rules-modal button{width:100%;margin-top:12px;}
   .hint{font-size:12px;color:var(--muted);margin-bottom:10px;}
   .admin-edit{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
   .admin-edit summary{cursor:pointer;font-size:12px;color:var(--muted);}
@@ -138,6 +140,12 @@
         • Точного нет, но ты <b>ближе всех</b> хотя бы к одному голу = <b>1 очко</b> (при равенстве — каждому из ближайших).<br>
         • Иначе — 0. Больше 3 очков за матч получить нельзя.<br><br>
         Каждый игрок считается сам по себе — в одном матче несколько человек могут получить по 3.<br><br>
+        <span style="display:block;padding:8px 10px;border-left:3px solid var(--accent2);background:rgba(56,139,253,.08);border-radius:6px;">
+        📌 <b>Пример</b> <span style="color:var(--muted);">(специально для Вадима 😄)</span>:
+        ты поставил на <b>60'</b>, остальные — на первый тайм, голы на <b>65, 75, 85</b>.
+        Точного попадания нет → ты ближе всех ко всем голам, но это всё равно <b>1 очко</b>, а не 3.
+        Три очка дают <b>только за точную минуту</b> гола.
+        </span><br>
         • Ставка <b>0</b> = прогноз на <b>0:0</b>. Если матч без голов — поставившим 0 по <b>3 очка</b>, остальным ноль.<br><br>
         Результаты вносятся автоматически (минуты голов и проход по сетке), админ может поправить вручную.
         Таблица: <b>Общий зачёт · Плей-офф · Групповой этап</b>.
@@ -588,6 +596,16 @@ async function setPin(name){
   await loadAll(); renderAll(); toast(`PIN для ${name} установлен ✓`);
 }
 function closeModal(){ document.getElementById("modalRoot").innerHTML=""; }
+function showRulesModal(){
+  const rules=document.querySelector("#info .rules")?.innerHTML||"";
+  document.getElementById("modalRoot").innerHTML=`
+    <div class="modal"><div class="modal-box rules-modal">
+      <h3>⚽ Правила — Кубок мира 2026</h3>
+      <div class="rules">${rules}</div>
+      <button data-action="ackRules">Ознакомлен 👍</button>
+    </div></div>`;
+}
+function ackRules(){ try{localStorage.setItem("wc_rules_seen","1");}catch(e){} closeModal(); }
 
 document.body.addEventListener("click",(e)=>{
   const b=e.target.closest("[data-action]"); if(!b) return;
@@ -597,7 +615,7 @@ document.body.addEventListener("click",(e)=>{
      removeGoal:()=>removeGoal(mid,parseInt(b.dataset.idx,10)),
      setWinner:()=>setWinner(mid,parseInt(b.dataset.slot,10)),
      saveMatch:()=>saveMatch(mid), delMatch:()=>delMatch(mid),
-     addMatch, login:showLogin, doLogin, closeModal, logoutMe,
+     addMatch, login:showLogin, doLogin, closeModal, ackRules, logoutMe,
      adminOn, adminOff, setPin:()=>setPin(name),
      setFilter:()=>{ matchFilter=b.dataset.filter; renderGames(); },
      setBoardFilter:()=>{ boardFilter=b.dataset.filter; renderBoard(); } }[a]||(()=>{}))();
@@ -617,6 +635,7 @@ document.querySelectorAll(".tab").forEach(tab=>{
   document.getElementById("loading").classList.add("hide");
   document.getElementById("games").classList.remove("hide");
   renderAll();
+  try{ if(!localStorage.getItem("wc_rules_seen")) showRulesModal(); }catch(e){}
   setInterval(async()=>{ if(isAdmin)return; await loadAll(); renderAll(); }, 12000);
 })();
 </script>
